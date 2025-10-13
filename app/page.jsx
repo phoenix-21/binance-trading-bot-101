@@ -190,7 +190,7 @@ export default function Home(){
 
   return (
     <div style={{ padding: 24, fontFamily: "Inter, Arial" }}>
-      <h1>Paper Trading Bot — demo</h1>
+      <h1>TradeX — Experimental</h1>
       <p>Balance: <strong>{balance.toFixed(2)} USDT</strong></p>
 
       <div style={{ display: "flex", gap: 24 }}>
