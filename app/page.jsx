@@ -1,17 +1,27 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
+// Helper: subtract 5 hours + lowercase am/pm
 function minus5AndFormat(dateStr) {
-  // dateStr can be ISO or a Date — convert then subtract 5 hours
   const d = new Date(dateStr);
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
-  return minus5.toLocaleTimeString("en-PK", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: "Asia/Karachi",
-  });
+  return minus5
+    .toLocaleTimeString("en-PK", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Karachi",
+    })
+    .replace("AM", "am")
+    .replace("PM", "pm");
 }
 
 export default function Home() {
@@ -35,7 +45,18 @@ export default function Home() {
         const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
         setProfitHistory((prev) => [
           ...prev.slice(-100),
-          { time: nowMinus5.toLocaleTimeString("en-PK", { timeZone: "Asia/Karachi", hour: "2-digit", minute: "2-digit", hour12: true }), balance: data.balance.toFixed(2) },
+          {
+            time: nowMinus5
+              .toLocaleTimeString("en-PK", {
+                timeZone: "Asia/Karachi",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })
+              .replace("AM", "am")
+              .replace("PM", "pm"),
+            balance: data.balance.toFixed(2),
+          },
         ]);
       } catch (err) {
         console.error("Failed to fetch trades:", err);
@@ -49,7 +70,9 @@ export default function Home() {
 
   return (
     <main className="p-6 bg-gray-900 text-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-green-400 mb-2">📈 Paper Trading Bot</h1>
+      <h1 className="text-3xl font-bold text-green-400 mb-2">
+        📈 Paper Trading Bot
+      </h1>
       <p className="text-gray-400 mb-6">Live data from MongoDB (Trading Bot)</p>
 
       <div className="grid md:grid-cols-3 gap-6">
@@ -71,7 +94,6 @@ export default function Home() {
                   <div className="font-semibold">{t.symbol}</div>
                   entry: {t.entry.toFixed(4)}{" "}
                   <span className="text-gray-400">
-                    {/* prefer backend adjusted field if present, otherwise fallback to subtracting on frontend */}
                     ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                   </span>
                   <br />
@@ -81,7 +103,11 @@ export default function Home() {
                   </span>
                   <br />
                   profit:{" "}
-                  <span className={t.profit >= 0 ? "text-green-400" : "text-red-400"}>
+                  <span
+                    className={
+                      t.profit >= 0 ? "text-green-400" : "text-red-400"
+                    }
+                  >
                     {t.profit.toFixed(2)}%
                   </span>
                 </li>
@@ -100,7 +126,9 @@ export default function Home() {
               topTrades.map((t, i) => (
                 <li key={i}>
                   {i + 1}. {t.symbol}:{" "}
-                  <span className="text-green-400">{t.profit.toFixed(2)}%</span>
+                  <span className="text-green-400">
+                    {t.profit.toFixed(2)}%
+                  </span>
                 </li>
               ))
             )}
@@ -116,7 +144,13 @@ export default function Home() {
             <XAxis dataKey="time" hide />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="balance" stroke="#4ade80" strokeWidth={2} dot={false} />
+            <Line
+              type="monotone"
+              dataKey="balance"
+              stroke="#4ade80"
+              strokeWidth={2}
+              dot={false}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
