@@ -1,4 +1,5 @@
 import { MongoClient } from "mongodb";
+import moment from "moment-timezone"; // ✅ added
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
@@ -30,9 +31,16 @@ export async function GET() {
     .limit(3)
     .toArray();
 
+  // ✅ Convert timestamps to Pakistan Standard Time before sending
+  const formattedTrades = trades.map((t) => ({
+    ...t,
+    openedAtPKT: moment(t.openedAt).tz("Asia/Karachi").format("hh:mm A"),
+    closedAtPKT: moment(t.closedAt).tz("Asia/Karachi").format("hh:mm A"),
+  }));
+
   return Response.json({
     balance: balanceDoc?.balance ?? 10000,
-    trades,
+    trades: formattedTrades,
     topTrades,
   });
 }
