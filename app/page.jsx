@@ -21,7 +21,7 @@ export default function Home() {
 
         setProfitHistory((prev) => [
           ...prev.slice(-100),
-          { time: new Date().toLocaleTimeString(), balance: data.balance.toFixed(2) },
+          { time: new Date().toLocaleTimeString("en-PK", { timeZone: "Asia/Karachi" }), balance: data.balance.toFixed(2) },
         ]);
       } catch (err) {
         console.error("Failed to fetch trades:", err);
@@ -56,24 +56,10 @@ export default function Home() {
                 <li key={i}>
                   <div className="font-semibold">{t.symbol}</div>
                   entry: {t.entry.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({new Date(t.openedAt).toLocaleTimeString("en-PK", { 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    hour12: true, 
-                    timeZone: "Asia/Karachi" 
-                  })})
-                  </span>
+                  <span className="text-gray-400">({t.openedAtPKT})</span>
                   <br />
                   exit: {t.exit.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({new Date(t.closedAt).toLocaleTimeString("en-PK", { 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    hour12: true, 
-                    timeZone: "Asia/Karachi" 
-                  })})
-                  </span>
+                  <span className="text-gray-400">({t.closedAtPKT})</span>
                   <br />
                   profit:{" "}
                   <span
