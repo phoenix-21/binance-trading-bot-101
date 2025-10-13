@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-use": "^17.6.0",
+    "uuid": "^13.0.0"
+  }
+}
