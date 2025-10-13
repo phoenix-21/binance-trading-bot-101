@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export const metadata = {
   title: "Binance Paper Trading Bot",
   description: "Live paper trading bot using Binance WebSocket data",
