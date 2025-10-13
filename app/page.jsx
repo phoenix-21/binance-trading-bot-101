@@ -29,6 +29,8 @@ export default function Home() {
   const [latestTrades, setLatestTrades] = useState([]);
   const [profits, setProfits] = useState([]);
   const [losses, setLosses] = useState([]);
+  const [profitsCount, setProfitsCount] = useState(0);
+  const [lossesCount, setLossesCount] = useState(0);
   const [profitHistory, setProfitHistory] = useState([]);
 
   // Fetch data from backend API every 5 seconds
@@ -42,6 +44,8 @@ export default function Home() {
         setLatestTrades(data.trades);
         setProfits(data.profits);
         setLosses(data.losses);
+        setProfitsCount(data.profitsCount);
+        setLossesCount(data.lossesCount);
 
         const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
         setProfitHistory((prev) => [
@@ -119,7 +123,9 @@ export default function Home() {
 
         {/* Profits List */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
-          <h2 className="font-semibold mb-2 text-green-400">Profits</h2>
+          <h2 className="font-semibold mb-2 text-green-400">
+            Profits ({profitsCount})
+          </h2>
           <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
             {profits.length === 0 ? (
               <p>No profitable trades yet</p>
@@ -143,33 +149,35 @@ export default function Home() {
             )}
           </ul>
         </div>
+      </div>
 
-        {/* Losses List */}
-        <div className="bg-gray-800 p-4 rounded-2xl shadow md:col-span-3">
-          <h2 className="font-semibold mb-2 text-red-400">Losses</h2>
-          <ul className="text-sm space-y-2 max-h-64 overflow-y-auto">
-            {losses.length === 0 ? (
-              <p>No losing trades yet</p>
-            ) : (
-              losses.map((t, i) => (
-                <li key={i}>
-                  <div className="font-semibold">{t.symbol}</div>
-                  entry: {t.entry.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                  </span>
-                  <br />
-                  exit: {t.exit.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                  </span>
-                  <br />
-                  profit: <span className="text-red-400">{t.profit.toFixed(2)}%</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
+      {/* Losses List */}
+      <div className="bg-gray-800 p-4 rounded-2xl shadow mt-6">
+        <h2 className="font-semibold mb-2 text-red-400">
+          Losses ({lossesCount})
+        </h2>
+        <ul className="text-sm space-y-2 max-h-64 overflow-y-auto">
+          {losses.length === 0 ? (
+            <p>No losing trades yet</p>
+          ) : (
+            losses.map((t, i) => (
+              <li key={i}>
+                <div className="font-semibold">{t.symbol}</div>
+                entry: {t.entry.toFixed(4)}{" "}
+                <span className="text-gray-400">
+                  ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                </span>
+                <br />
+                exit: {t.exit.toFixed(4)}{" "}
+                <span className="text-gray-400">
+                  ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                </span>
+                <br />
+                profit: <span className="text-red-400">{t.profit.toFixed(2)}%</span>
+              </li>
+            ))
+          )}
+        </ul>
       </div>
 
       {/* Profit Chart */}
