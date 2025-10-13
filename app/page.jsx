@@ -57,12 +57,22 @@ export default function Home() {
                   <div className="font-semibold">{t.symbol}</div>
                   entry: {t.entry.toFixed(4)}{" "}
                   <span className="text-gray-400">
-                    ({new Date(t.openedAt).toLocaleTimeString("en-PK", { hour: '2-digit', minute: '2-digit' })})
+                    ({new Date(t.openedAt).toLocaleTimeString("en-PK", { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true, 
+                    timeZone: "Asia/Karachi" 
+                  })})
                   </span>
                   <br />
                   exit: {t.exit.toFixed(4)}{" "}
                   <span className="text-gray-400">
-                    ({new Date(t.closedAt).toLocaleTimeString("en-PK", { hour: '2-digit', minute: '2-digit' })})
+                    ({new Date(t.closedAt).toLocaleTimeString("en-PK", { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true, 
+                    timeZone: "Asia/Karachi" 
+                  })})
                   </span>
                   <br />
                   profit:{" "}
