@@ -1,110 +1,122 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import useWebSocket from "react-use-websocket";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
   const [balance, setBalance] = useState(10000);
+  const [positions, setPositions] = useState({});
   const [closedTrades, setClosedTrades] = useState([]);
-  const [chartData, setChartData] = useState([]);
+  const [profitHistory, setProfitHistory] = useState([]);
+
+  // Connect to Binance WebSocket (live prices)
+  const { lastMessage } = useWebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
 
   useEffect(() => {
-    const symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT", "SOLUSDT"];
+    if (lastMessage !== null) {
+      const tickers = JSON.parse(lastMessage.data);
+      tickers.forEach((t) => {
+        const symbol = t.s;
+        const price = parseFloat(t.c);
 
-    const interval = setInterval(() => {
-      const symbol = symbols[Math.floor(Math.random() * symbols.length)];
-      const profit = parseFloat(((Math.random() - 0.5) * 200).toFixed(2));
-      const newBalance = balance + profit;
-      const trade = {
-        id: uuidv4(),
-        symbol,
-        profit,
-        time: new Date().toLocaleTimeString(),
-      };
-      setBalance(newBalance);
-      setClosedTrades((prev) => [...prev, trade].slice(-30)); // Keep last 30 trades
-      setChartData((prev) => [...prev, { time: trade.time, balance: newBalance }].slice(-20));
-    }, 3000);
+        // simple simulated trading logic
+        setPositions((prev) => {
+          const p = { ...prev };
+          if (!p[symbol]) {
+            // randomly enter a trade for demonstration
+            if (Math.random() < 0.0002) {
+              p[symbol] = { entry: price, peak: price, trail: price * 0.98 };
+            }
+          } else {
+            const trade = p[symbol];
+            trade.peak = Math.max(trade.peak, price);
+            trade.trail = trade.peak * 0.98;
 
-    return () => clearInterval(interval);
+            // exit trade if price falls below trailing stop
+            if (price < trade.trail) {
+              const profit = ((price - trade.entry) / trade.entry) * 100;
+              setClosedTrades((ct) => [...ct, { symbol, profit, entry: trade.entry, exit: price }]);
+              setBalance((b) => b * (1 + profit / 100));
+              delete p[symbol];
+            }
+          }
+          return p;
+        });
+      });
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    setProfitHistory((prev) => [
+      ...prev.slice(-100),
+      { time: new Date().toLocaleTimeString(), balance: balance.toFixed(2) },
+    ]);
   }, [balance]);
 
-  const topPerformers = Object.entries(
-    closedTrades.reduce((acc, t) => {
-      acc[t.symbol] = (acc[t.symbol] || 0) + t.profit;
-      return acc;
-    }, {})
-  )
-    .sort((a, b) => b[1] - a[1])
+  const topPerformers = closedTrades
+    .sort((a, b) => b.profit - a.profit)
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <h1 className="text-4xl font-bold text-green-400 flex items-center gap-2">
-          ✅ Paper Trading Bot
-        </h1>
-        <p className="text-sm text-gray-400">
-          Live Binance simulation — trades generated every few seconds.
-        </p>
+    <main className="p-6 bg-gray-900 text-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-green-400 mb-2">📈 Paper Trading Bot</h1>
+      <p className="text-gray-400 mb-6">
+        Live Binance data — simulated trades with trailing stops
+      </p>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="p-6 bg-gray-900 rounded-2xl shadow-lg">
-            <h2 className="text-xl font-semibold mb-3">💰 Balance</h2>
-            <p className="text-3xl font-mono text-green-400">{balance.toFixed(2)} USDT</p>
-          </div>
-
-          <div className="p-6 bg-gray-900 rounded-2xl shadow-lg">
-            <h2 className="text-xl font-semibold mb-3">📊 Closed Trades ({closedTrades.length})</h2>
-            <div className="max-h-48 overflow-y-auto text-sm">
-              {closedTrades.length ? (
-                closedTrades.map((t) => (
-                  <div key={t.id} className="flex justify-between border-b border-gray-800 py-1">
-                    <span>{t.symbol}</span>
-                    <span className={t.profit >= 0 ? "text-green-400" : "text-red-400"}>
-                      {t.profit.toFixed(2)}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No trades yet</p>
-              )}
-            </div>
-          </div>
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="bg-gray-800 p-4 rounded-2xl shadow">
+          <h2 className="font-semibold mb-2">Balance</h2>
+          <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>
         </div>
 
-        <div className="p-6 bg-gray-900 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">📈 Profit Over Time</h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <XAxis dataKey="time" stroke="#888" />
-                <YAxis stroke="#888" />
-                <Tooltip />
-                <Line type="monotone" dataKey="balance" stroke="#10b981" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="bg-gray-800 p-4 rounded-2xl shadow">
+          <h2 className="font-semibold mb-2">Open Positions</h2>
+          <ul className="text-sm space-y-1 max-h-48 overflow-y-auto">
+            {Object.entries(positions).map(([symbol, p]) => (
+              <li key={symbol}>
+                {symbol}: entry {p.entry.toFixed(4)} trail {p.trail.toFixed(4)}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="p-6 bg-gray-900 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">🏆 Top 3 Performers</h2>
-          {topPerformers.length ? (
-            <ul className="space-y-1">
-              {topPerformers.map(([symbol, profit]) => (
-                <li key={symbol} className="flex justify-between">
-                  <span>{symbol}</span>
-                  <span className={profit >= 0 ? "text-green-400" : "text-red-400"}>
-                    {profit.toFixed(2)} USDT
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No closed trades yet</p>
-          )}
+        <div className="bg-gray-800 p-4 rounded-2xl shadow">
+          <h2 className="font-semibold mb-2">Closed Trades</h2>
+          <p>{closedTrades.length}</p>
         </div>
       </div>
-    </div>
+
+      <h3 className="text-xl mt-8 mb-2 font-semibold flex items-center gap-2">
+        📊 Profit Over Time
+      </h3>
+      <div className="bg-gray-800 p-4 rounded-2xl shadow h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={profitHistory}>
+            <XAxis dataKey="time" hide />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="balance" stroke="#4ade80" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <h3 className="text-xl mt-8 mb-2 font-semibold flex items-center gap-2">
+        🏆 Top 3 Performers
+      </h3>
+      <div className="bg-gray-800 p-4 rounded-2xl shadow">
+        {topPerformers.length === 0 ? (
+          <p>No closed trades yet</p>
+        ) : (
+          <ul>
+            {topPerformers.map((t, i) => (
+              <li key={i}>
+                {t.symbol}: {t.profit.toFixed(2)}%
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </main>
   );
 }
