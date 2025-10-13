@@ -1,95 +1,102 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import useWebSocket from "react-use-websocket";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function Home() {
   const [balance, setBalance] = useState(10000);
-  const [positions, setPositions] = useState({});
-  const [closedTrades, setClosedTrades] = useState([]);
+  const [latestTrades, setLatestTrades] = useState([]);
+  const [topTrades, setTopTrades] = useState([]);
   const [profitHistory, setProfitHistory] = useState([]);
 
-  // Connect to Binance WebSocket (live prices)
-  const { lastMessage } = useWebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
-
+  // Fetch data from backend API every 5 seconds
   useEffect(() => {
-    if (lastMessage !== null) {
-      const tickers = JSON.parse(lastMessage.data);
-      tickers.forEach((t) => {
-        const symbol = t.s;
-        const price = parseFloat(t.c);
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/trades");
+        const data = await res.json();
 
-        // simple simulated trading logic
-        setPositions((prev) => {
-          const p = { ...prev };
-          if (!p[symbol]) {
-            // randomly enter a trade for demonstration
-            if (Math.random() < 0.0002) {
-              p[symbol] = { entry: price, peak: price, trail: price * 0.98 };
-            }
-          } else {
-            const trade = p[symbol];
-            trade.peak = Math.max(trade.peak, price);
-            trade.trail = trade.peak * 0.98;
+        setBalance(data.balance);
+        setLatestTrades(data.trades);
+        setTopTrades(data.topTrades);
 
-            // exit trade if price falls below trailing stop
-            if (price < trade.trail) {
-              const profit = ((price - trade.entry) / trade.entry) * 100;
-              setClosedTrades((ct) => [...ct, { symbol, profit, entry: trade.entry, exit: price }]);
-              setBalance((b) => b * (1 + profit / 100));
-              delete p[symbol];
-            }
-          }
-          return p;
-        });
-      });
+        setProfitHistory((prev) => [
+          ...prev.slice(-100),
+          { time: new Date().toLocaleTimeString(), balance: data.balance.toFixed(2) },
+        ]);
+      } catch (err) {
+        console.error("Failed to fetch trades:", err);
+      }
     }
-  }, [lastMessage]);
 
-  useEffect(() => {
-    setProfitHistory((prev) => [
-      ...prev.slice(-100),
-      { time: new Date().toLocaleTimeString(), balance: balance.toFixed(2) },
-    ]);
-  }, [balance]);
-
-  const topPerformers = closedTrades
-    .sort((a, b) => b.profit - a.profit)
-    .slice(0, 3);
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <main className="p-6 bg-gray-900 text-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-green-400 mb-2">📈 Paper Trading Bot</h1>
-      <p className="text-gray-400 mb-6">
-        Live Binance data — simulated trades with trailing stops
-      </p>
+      <p className="text-gray-400 mb-6">Live data from MongoDB (Trading Bot)</p>
 
       <div className="grid md:grid-cols-3 gap-6">
+        {/* Balance */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2">Balance</h2>
           <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>
         </div>
 
+        {/* Latest 5 Trades */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
-          <h2 className="font-semibold mb-2">Open Positions</h2>
-          <ul className="text-sm space-y-1 max-h-48 overflow-y-auto">
-            {Object.entries(positions).map(([symbol, p]) => (
-              <li key={symbol}>
-                {symbol}: entry {p.entry.toFixed(4)} trail {p.trail.toFixed(4)}
-              </li>
-            ))}
+          <h2 className="font-semibold mb-2">Latest 5 Trades</h2>
+          <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
+            {latestTrades.length === 0 ? (
+              <p>No trades yet</p>
+            ) : (
+              latestTrades.map((t, i) => (
+                <li key={i}>
+                  <div className="font-semibold">{t.symbol}</div>
+                  entry: {t.entry.toFixed(4)}{" "}
+                  <span className="text-gray-400">
+                    ({new Date(t.openedAt).toLocaleTimeString("en-PK", { hour: '2-digit', minute: '2-digit' })})
+                  </span>
+                  <br />
+                  exit: {t.exit.toFixed(4)}{" "}
+                  <span className="text-gray-400">
+                    ({new Date(t.closedAt).toLocaleTimeString("en-PK", { hour: '2-digit', minute: '2-digit' })})
+                  </span>
+                  <br />
+                  profit:{" "}
+                  <span
+                    className={t.profit >= 0 ? "text-green-400" : "text-red-400"}
+                  >
+                    {t.profit.toFixed(2)}%
+                  </span>
+                </li>
+              ))
+            )}
           </ul>
         </div>
 
+        {/* Top 3 Trades */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
-          <h2 className="font-semibold mb-2">Closed Trades</h2>
-          <p>{closedTrades.length}</p>
+          <h2 className="font-semibold mb-2">🏆 Top 3 Trades</h2>
+          <ul className="text-sm space-y-1">
+            {topTrades.length === 0 ? (
+              <p>No data</p>
+            ) : (
+              topTrades.map((t, i) => (
+                <li key={i}>
+                  {i + 1}. {t.symbol}:{" "}
+                  <span className="text-green-400">{t.profit.toFixed(2)}%</span>
+                </li>
+              ))
+            )}
+          </ul>
         </div>
       </div>
 
-      <h3 className="text-xl mt-8 mb-2 font-semibold flex items-center gap-2">
-        📊 Profit Over Time
-      </h3>
+      {/* Profit Chart */}
+      <h3 className="text-xl mt-8 mb-2 font-semibold">📊 Profit Over Time</h3>
       <div className="bg-gray-800 p-4 rounded-2xl shadow h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={profitHistory}>
@@ -99,23 +106,6 @@ export default function Home() {
             <Line type="monotone" dataKey="balance" stroke="#4ade80" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
-      </div>
-
-      <h3 className="text-xl mt-8 mb-2 font-semibold flex items-center gap-2">
-        🏆 Top 3 Performers
-      </h3>
-      <div className="bg-gray-800 p-4 rounded-2xl shadow">
-        {topPerformers.length === 0 ? (
-          <p>No closed trades yet</p>
-        ) : (
-          <ul>
-            {topPerformers.map((t, i) => (
-              <li key={i}>
-                {t.symbol}: {t.profit.toFixed(2)}%
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </main>
   );
