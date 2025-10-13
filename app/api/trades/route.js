@@ -23,12 +23,6 @@ export async function GET() {
     .limit(5)
     .toArray();
 
-  const adjustedTrades = trades.map(t => ({
-    ...t,
-    openedAtPKT: new Date(t.openedAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi" }),
-    closedAtPKT: new Date(t.closedAt).toLocaleString("en-PK", { timeZone: "Asia/Karachi" }),
-  }));
-
   const topTrades = await db
     .collection("trades")
     .find({})
