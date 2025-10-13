@@ -76,9 +76,9 @@ export default function Home() {
   return (
     <main className="p-6 bg-gray-900 text-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-green-400 mb-2">
-        📈 Paper Trading Bot
+        📈 TradeX Bot
       </h1>
-      <p className="text-gray-400 mb-6">Live data from MongoDB (Trading Bot)</p>
+      <p className="text-gray-400 mb-6">Trading analysis and data collection</p>
 
       <div className="grid md:grid-cols-3 gap-6">
         {/* Balance */}
