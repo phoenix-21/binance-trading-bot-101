@@ -2,6 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+function minus5AndFormat(dateStr) {
+  // dateStr can be ISO or a Date — convert then subtract 5 hours
+  const d = new Date(dateStr);
+  const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
+  return minus5.toLocaleTimeString("en-PK", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Karachi",
+  });
+}
+
 export default function Home() {
   const [balance, setBalance] = useState(10000);
   const [latestTrades, setLatestTrades] = useState([]);
@@ -19,9 +31,11 @@ export default function Home() {
         setLatestTrades(data.trades);
         setTopTrades(data.topTrades);
 
+        // chart time: subtract 5 hours from current time before formatting
+        const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
         setProfitHistory((prev) => [
           ...prev.slice(-100),
-          { time: new Date().toLocaleTimeString("en-PK", { timeZone: "Asia/Karachi" }), balance: data.balance.toFixed(2) },
+          { time: nowMinus5.toLocaleTimeString("en-PK", { timeZone: "Asia/Karachi", hour: "2-digit", minute: "2-digit", hour12: true }), balance: data.balance.toFixed(2) },
         ]);
       } catch (err) {
         console.error("Failed to fetch trades:", err);
@@ -56,15 +70,18 @@ export default function Home() {
                 <li key={i}>
                   <div className="font-semibold">{t.symbol}</div>
                   entry: {t.entry.toFixed(4)}{" "}
-                  <span className="text-gray-400">({t.openedAtPKT})</span>
+                  <span className="text-gray-400">
+                    {/* prefer backend adjusted field if present, otherwise fallback to subtracting on frontend */}
+                    ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                  </span>
                   <br />
                   exit: {t.exit.toFixed(4)}{" "}
-                  <span className="text-gray-400">({t.closedAtPKT})</span>
+                  <span className="text-gray-400">
+                    ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                  </span>
                   <br />
                   profit:{" "}
-                  <span
-                    className={t.profit >= 0 ? "text-green-400" : "text-red-400"}
-                  >
+                  <span className={t.profit >= 0 ? "text-green-400" : "text-red-400"}>
                     {t.profit.toFixed(2)}%
                   </span>
                 </li>
