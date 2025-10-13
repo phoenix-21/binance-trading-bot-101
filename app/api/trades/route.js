@@ -25,15 +25,20 @@ export async function GET() {
     .limit(5)
     .toArray();
 
-  const topTrades = await db
+  const profits = await db
     .collection("trades")
-    .find({})
+    .find({ profit: { $gt: 0 } })
     .sort({ profit: -1 })
-    .limit(3)
     .toArray();
 
-  // Subtract 5 hours and lowercase am/pm
-  const formattedTrades = trades.map((t) => {
+  const losses = await db
+    .collection("trades")
+    .find({ profit: { $lt: 0 } })
+    .sort({ profit: 1 }) // smallest (most negative) first
+    .toArray();
+
+  // Format timestamps (subtract 5 hours and lowercase am/pm)
+  const formatTrade = (t) => {
     const openedMinus5 = moment(t.openedAt).subtract(5, "hours");
     const closedMinus5 = moment(t.closedAt).subtract(5, "hours");
 
@@ -54,11 +59,12 @@ export async function GET() {
       openedAtPKT_minus5,
       closedAtPKT_minus5,
     };
-  });
+  };
 
   return Response.json({
     balance: balanceDoc?.balance ?? 10000,
-    trades: formattedTrades,
-    topTrades,
+    trades: trades.map(formatTrade),
+    profits: profits.map(formatTrade),
+    losses: losses.map(formatTrade),
   });
 }
