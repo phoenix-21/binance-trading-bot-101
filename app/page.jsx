@@ -1,4 +1,5 @@
-// pages/index.js (or app/page.jsx in Next 13)
+"use client";
+
 // Install: npm i react-use uuid
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
