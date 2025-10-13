@@ -10,6 +10,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-use": "^17.6.0",
+    "react-use-websocket": "^4.13.0",
     "recharts": "^3.2.1",
     "uuid": "^13.0.0"
   },
