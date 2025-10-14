@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Helper: subtract 5 hours + lowercase am/pm
 function minus5AndFormat(dateStr) {
   const d = new Date(dateStr);
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
@@ -31,9 +30,10 @@ export default function Home() {
   const [losses, setLosses] = useState([]);
   const [profitsCount, setProfitsCount] = useState(0);
   const [lossesCount, setLossesCount] = useState(0);
+  const [totalProfit24h, setTotalProfit24h] = useState(0);
+  const [totalLoss24h, setTotalLoss24h] = useState(0);
   const [profitHistory, setProfitHistory] = useState([]);
 
-  // Fetch data from backend API every 5 seconds
   useEffect(() => {
     async function fetchData() {
       try {
@@ -46,6 +46,8 @@ export default function Home() {
         setLosses(data.losses);
         setProfitsCount(data.profitsCount);
         setLossesCount(data.lossesCount);
+        setTotalProfit24h(data.totalProfit24h);
+        setTotalLoss24h(data.totalLoss24h);
 
         const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
         setProfitHistory((prev) => [
@@ -75,10 +77,10 @@ export default function Home() {
 
   return (
     <main className="p-6 bg-gray-900 text-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-green-400 mb-2">
-        📈 TradeX Bot
-      </h1>
-      <p className="text-gray-400 mb-6">Trading analysis and data collection</p>
+      <h1 className="text-3xl font-bold text-green-400 mb-2">📈 TradeX Bot</h1>
+      <p className="text-gray-400 mb-6">
+        Trading analysis and data collection
+      </p>
 
       <div className="grid md:grid-cols-3 gap-6">
         {/* Balance */}
@@ -87,7 +89,7 @@ export default function Home() {
           <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>
         </div>
 
-        {/* Latest 5 Trades */}
+        {/* Latest Trades */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2">Latest 5 Trades</h2>
           <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
@@ -121,10 +123,13 @@ export default function Home() {
           </ul>
         </div>
 
-        {/* Profits List */}
+        {/* Profits */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2 text-green-400">
-            Profits ({profitsCount})
+            Profits ({profitsCount}) – Last 24h:{" "}
+            <span className="text-green-300">
+              {totalProfit24h.toFixed(2)}%
+            </span>
           </h2>
           <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
             {profits.length === 0 ? (
@@ -143,7 +148,10 @@ export default function Home() {
                     ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
                   </span>
                   <br />
-                  profit: <span className="text-green-400">{t.profit.toFixed(2)}%</span>
+                  profit:{" "}
+                  <span className="text-green-400">
+                    {t.profit.toFixed(2)}%
+                  </span>
                 </li>
               ))
             )}
@@ -151,10 +159,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Losses List */}
+      {/* Losses */}
       <div className="bg-gray-800 p-4 rounded-2xl shadow mt-6">
         <h2 className="font-semibold mb-2 text-red-400">
-          Losses ({lossesCount})
+          Losses ({lossesCount}) – Last 24h:{" "}
+          <span className="text-red-300">{totalLoss24h.toFixed(2)}%</span>
         </h2>
         <ul className="text-sm space-y-2 max-h-64 overflow-y-auto">
           {losses.length === 0 ? (
@@ -173,7 +182,10 @@ export default function Home() {
                   ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
                 </span>
                 <br />
-                profit: <span className="text-red-400">{t.profit.toFixed(2)}%</span>
+                profit:{" "}
+                <span className="text-red-400">
+                  {t.profit.toFixed(2)}%
+                </span>
               </li>
             ))
           )}
