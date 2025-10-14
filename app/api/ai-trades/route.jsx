@@ -80,7 +80,7 @@ export async function GET() {
   };
 
   return Response.json({
-    balance: balanceDoc?.balance ?? '-',
+    balance: balanceDoc?.balance ?? "-",
     trades: trades.map(formatTrade),
     profits: profits.map(formatTrade),
     losses: losses.map(formatTrade),
