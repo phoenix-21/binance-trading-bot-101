@@ -1,6 +1,6 @@
 // route.js
 import { MongoClient } from "mongodb";
-import moment from "moment-timezone"; // keep this (already installed)
+import moment from "moment-timezone";
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
@@ -26,19 +26,45 @@ export async function GET() {
     .limit(5)
     .toArray();
 
+  // Compute time 24h ago
+  const since24h = moment().subtract(24, "hours").toDate();
+
+  // Profits & losses limited to 100
   const profits = await db
     .collection("trades")
     .find({ profit: { $gt: 0 } })
     .sort({ profit: -1 })
+    .limit(100)
     .toArray();
 
   const losses = await db
     .collection("trades")
     .find({ profit: { $lt: 0 } })
     .sort({ profit: 1 })
+    .limit(100)
     .toArray();
 
-  // Helper to format timestamps (subtract 5h and lowercase am/pm)
+  // Aggregate total profit/loss over last 24h
+  const profitAgg = await db
+    .collection("trades")
+    .aggregate([
+      { $match: { profit: { $gt: 0 }, closedAt: { $gte: since24h } } },
+      { $group: { _id: null, total: { $sum: "$profit" } } },
+    ])
+    .toArray();
+
+  const lossAgg = await db
+    .collection("trades")
+    .aggregate([
+      { $match: { profit: { $lt: 0 }, closedAt: { $gte: since24h } } },
+      { $group: { _id: null, total: { $sum: "$profit" } } },
+    ])
+    .toArray();
+
+  const totalProfit24h = profitAgg[0]?.total ?? 0;
+  const totalLoss24h = lossAgg[0]?.total ?? 0;
+
+  // Helper to format timestamps
   const formatTrade = (t) => {
     const openedMinus5 = moment(t.openedAt).subtract(5, "hours");
     const closedMinus5 = moment(t.closedAt).subtract(5, "hours");
@@ -69,5 +95,7 @@ export async function GET() {
     losses: losses.map(formatTrade),
     profitsCount: profits.length,
     lossesCount: losses.length,
+    totalProfit24h,
+    totalLoss24h,
   });
 }
