@@ -30,8 +30,8 @@ export default function Home() {
   const [losses, setLosses] = useState([]);
   const [profitsCount, setProfitsCount] = useState(0);
   const [lossesCount, setLossesCount] = useState(0);
-  const [totalProfit24h, setTotalProfit24h] = useState(0);
-  const [totalLoss24h, setTotalLoss24h] = useState(0);
+  const [profits24hCount, setProfits24hCount] = useState(0);
+  const [losses24hCount, setLosses24hCount] = useState(0);
   const [profitHistory, setProfitHistory] = useState([]);
 
   useEffect(() => {
@@ -46,8 +46,8 @@ export default function Home() {
         setLosses(data.losses);
         setProfitsCount(data.profitsCount);
         setLossesCount(data.lossesCount);
-        setTotalProfit24h(data.totalProfit24h);
-        setTotalLoss24h(data.totalLoss24h);
+        setProfits24hCount(data.profits24hCount);
+        setLosses24hCount(data.losses24hCount);
 
         const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
         setProfitHistory((prev) => [
@@ -126,10 +126,7 @@ export default function Home() {
         {/* Profits */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2 text-green-400">
-            Profits ({profitsCount}) – Last 24h:{" "}
-            <span className="text-green-300">
-              {totalProfit24h.toFixed(2)}%
-            </span>
+            Profits ({profits24hCount})
           </h2>
           <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
             {profits.length === 0 ? (
@@ -162,8 +159,7 @@ export default function Home() {
       {/* Losses */}
       <div className="bg-gray-800 p-4 rounded-2xl shadow mt-6">
         <h2 className="font-semibold mb-2 text-red-400">
-          Losses ({lossesCount}) – Last 24h:{" "}
-          <span className="text-red-300">{totalLoss24h.toFixed(2)}%</span>
+          Losses ({losses24hCount})
         </h2>
         <ul className="text-sm space-y-2 max-h-64 overflow-y-auto">
           {losses.length === 0 ? (
