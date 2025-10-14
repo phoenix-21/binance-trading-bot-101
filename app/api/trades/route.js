@@ -1,6 +1,6 @@
 // route.js
 import { MongoClient } from "mongodb";
-import moment from "moment-timezone";
+import moment from "moment-timezone"; // keep this (already installed)
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
@@ -26,7 +26,7 @@ export async function GET() {
     .limit(5)
     .toArray();
 
-  // Compute time 24h ago
+  // Time window: last 24 hours
   const since24h = moment().subtract(24, "hours").toDate();
 
   // Profits & losses limited to 100
@@ -44,27 +44,22 @@ export async function GET() {
     .limit(100)
     .toArray();
 
-  // Aggregate total profit/loss over last 24h
-  const profitAgg = await db
+  // Count of profits & losses in the last 24 hours
+  const profits24hCount = await db
     .collection("trades")
-    .aggregate([
-      { $match: { profit: { $gt: 0 }, closedAt: { $gte: since24h } } },
-      { $group: { _id: null, total: { $sum: "$profit" } } },
-    ])
-    .toArray();
+    .countDocuments({
+      profit: { $gt: 0 },
+      closedAt: { $gte: since24h },
+    });
 
-  const lossAgg = await db
+  const losses24hCount = await db
     .collection("trades")
-    .aggregate([
-      { $match: { profit: { $lt: 0 }, closedAt: { $gte: since24h } } },
-      { $group: { _id: null, total: { $sum: "$profit" } } },
-    ])
-    .toArray();
+    .countDocuments({
+      profit: { $lt: 0 },
+      closedAt: { $gte: since24h },
+    });
 
-  const totalProfit24h = profitAgg[0]?.total ?? 0;
-  const totalLoss24h = lossAgg[0]?.total ?? 0;
-
-  // Helper to format timestamps
+  // Helper to format timestamps (subtract 5h and lowercase am/pm)
   const formatTrade = (t) => {
     const openedMinus5 = moment(t.openedAt).subtract(5, "hours");
     const closedMinus5 = moment(t.closedAt).subtract(5, "hours");
@@ -93,9 +88,9 @@ export async function GET() {
     trades: trades.map(formatTrade),
     profits: profits.map(formatTrade),
     losses: losses.map(formatTrade),
-    profitsCount: profits.length,
-    lossesCount: losses.length,
-    totalProfit24h,
-    totalLoss24h,
+    profitsCount: profits.length, // number in list (100)
+    lossesCount: losses.length,   // number in list (100)
+    profits24hCount,              // total number of profitable trades in last 24h
+    losses24hCount,               // total number of losing trades in last 24h
   });
 }
