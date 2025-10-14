@@ -118,7 +118,8 @@ export default function Home() {
             {/* Balance */}
             <div className="bg-gray-800 p-4 rounded-2xl shadow">
               <h2 className="font-semibold mb-2">Balance</h2>
-              <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>
+              <p className="text-2xl text-green-400">
+               {typeof balance === "number" ? balance.toFixed(2) : balance} USDT </p>
             </div>
 
             {/* Latest Trades */}
