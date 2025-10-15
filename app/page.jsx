@@ -65,7 +65,10 @@ export default function Home() {
               })
               .replace("AM", "am")
               .replace("PM", "pm"),
-            balance: data.balance.toFixed(2),
+            balance:
+              typeof data.balance === "number"
+                ? data.balance.toFixed(2)
+                : null,
           },
         ]);
       } catch (err) {
@@ -117,14 +120,18 @@ export default function Home() {
           </p>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Balance */}
+            {/* ✅ Balance */}
             <div className="bg-gray-800 p-4 rounded-2xl shadow">
               <h2 className="font-semibold mb-2">Balance</h2>
               <p className="text-2xl text-green-400">
-                {typeof balance === "number"
-                  ? balance.toFixed(2)
-                  : balance}{" "}
-                USDT
+                {typeof balance === "number" ? (
+                  <>
+                    {balance.toFixed(2)}{" "}
+                    <span className="text-gray-400 text-lg">USDT</span>
+                  </>
+                ) : (
+                  <span className="text-4xl text-gray-500 font-semibold">—</span>
+                )}
               </p>
             </div>
 
@@ -261,4 +268,4 @@ export default function Home() {
       )}
     </div>
   );
-}
+                        }
