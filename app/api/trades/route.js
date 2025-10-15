@@ -1,7 +1,6 @@
 // app/api/trades/route.js
 import { Pool } from "pg";
 import moment from "moment-timezone"; // keep this (already installed)
-import 'dotenv/config';
 
 const POSTGRES_URL = process.env.POSTGRES_URL;
 const pool = new Pool({ connectionString: POSTGRES_URL });
