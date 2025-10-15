@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import moment from "moment-timezone";
 
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL, // same as in index.js
+  connectionString: process.env.TRADING_DB_URL, // same as in index.js
   ssl: { rejectUnauthorized: false },
 });
 
