@@ -26,7 +26,7 @@ function minus5AndFormat(dateStr) {
 }
 
 export default function Home() {
-  const [balance, setBalance] = useState("-");
+  const [balance, setBalance] = useState("  -");
   const [latestTrades, setLatestTrades] = useState([]);
   const [profits, setProfits] = useState([]);
   const [losses, setLosses] = useState([]);
