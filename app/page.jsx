@@ -130,7 +130,7 @@ export default function Home() {
                     <span className="text-gray-400 text-lg">USDT</span>
                   </>
                 ) : (
-                  <span className="text-4xl text-gray-500 font-semibold">—</span>
+                  <span className="text-4xl text-gray-500 font-semibold">-</span>
                 )}
               </p>
             </div>
@@ -268,4 +268,4 @@ export default function Home() {
       )}
     </div>
   );
-                        }
+}
