@@ -121,23 +121,25 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* ✅ Balance */}
-            <div className="bg-gray-800 p-4 rounded-2xl shadow">
-              <h2 className="font-semibold mb-2">Balance</h2>
-              <p className="text-2xl text-green-400">
+            <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700">
+              <h2 className="font-semibold mb-2 text-gray-300">Balance</h2>
+              <div className="flex items-center justify-start space-x-2">
                 {typeof balance === "number" ? (
                   <>
-                    {balance.toFixed(2)}{" "}
+                    <span className="text-3xl text-green-400 font-semibold">
+                      {balance.toFixed(2)}
+                    </span>
                     <span className="text-gray-400 text-lg">USDT</span>
                   </>
                 ) : (
-                  <span className="text-4xl text-gray-500 font-semibold">-</span>
+                  <span className="text-3xl text-green-400 font-semibold">-</span>
                 )}
-              </p>
+              </div>
             </div>
 
             {/* Latest Trades */}
-            <div className="bg-gray-800 p-4 rounded-2xl shadow">
-              <h2 className="font-semibold mb-2">Latest 5 Trades</h2>
+            <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700">
+              <h2 className="font-semibold mb-2 text-gray-300">Latest 5 Trades</h2>
               <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
                 {latestTrades.length === 0 ? (
                   <p>No trades yet</p>
@@ -147,14 +149,12 @@ export default function Home() {
                       <div className="font-semibold">{t.symbol}</div>
                       entry: {t.entry.toFixed(4)}{" "}
                       <span className="text-gray-400">
-                        ({t.openedAtPKT_minus5 ??
-                          minus5AndFormat(t.openedAt)})
+                        ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                       </span>
                       <br />
                       exit: {t.exit.toFixed(4)}{" "}
                       <span className="text-gray-400">
-                        ({t.closedAtPKT_minus5 ??
-                          minus5AndFormat(t.closedAt)})
+                        ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
                       </span>
                       <br />
                       profit:{" "}
@@ -174,7 +174,7 @@ export default function Home() {
             </div>
 
             {/* Profits */}
-            <div className="bg-gray-800 p-4 rounded-2xl shadow">
+            <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700">
               <h2 className="font-semibold mb-2 text-green-400">
                 Profits ({profits24hCount})
               </h2>
@@ -187,14 +187,12 @@ export default function Home() {
                       <div className="font-semibold">{t.symbol}</div>
                       entry: {t.entry.toFixed(4)}{" "}
                       <span className="text-gray-400">
-                        ({t.openedAtPKT_minus5 ??
-                          minus5AndFormat(t.openedAt)})
+                        ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                       </span>
                       <br />
                       exit: {t.exit.toFixed(4)}{" "}
                       <span className="text-gray-400">
-                        ({t.closedAtPKT_minus5 ??
-                          minus5AndFormat(t.closedAt)})
+                        ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
                       </span>
                       <br />
                       profit:{" "}
@@ -209,7 +207,7 @@ export default function Home() {
           </div>
 
           {/* Losses */}
-          <div className="bg-gray-800 p-4 rounded-2xl shadow mt-6">
+          <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700 mt-6">
             <h2 className="font-semibold mb-2 text-red-400">
               Losses ({losses24hCount})
             </h2>
@@ -222,14 +220,12 @@ export default function Home() {
                     <div className="font-semibold">{t.symbol}</div>
                     entry: {t.entry.toFixed(4)}{" "}
                     <span className="text-gray-400">
-                      ({t.openedAtPKT_minus5 ??
-                        minus5AndFormat(t.openedAt)})
+                      ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                     </span>
                     <br />
                     exit: {t.exit.toFixed(4)}{" "}
                     <span className="text-gray-400">
-                      ({t.closedAtPKT_minus5 ??
-                        minus5AndFormat(t.closedAt)})
+                      ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
                     </span>
                     <br />
                     profit:{" "}
@@ -246,7 +242,7 @@ export default function Home() {
           <h3 className="text-xl mt-8 mb-2 font-semibold">
             📊 Profit Over Time
           </h3>
-          <div className="bg-gray-800 p-4 rounded-2xl shadow h-64">
+          <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={profitHistory}>
                 <XAxis dataKey="time" hide />
@@ -268,4 +264,4 @@ export default function Home() {
       )}
     </div>
   );
-}
+                }
