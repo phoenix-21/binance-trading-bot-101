@@ -40,7 +40,8 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("/api/trades");
+        const endpoint = activeTab === "main" ? "/api/trades" : "/api/ai-trades";
+        const res = await fetch(endpoint);
         const data = await res.json();
 
         setBalance(data.balance);
@@ -69,17 +70,16 @@ export default function Home() {
           },
         ]);
       } catch (err) {
-        console.error("Failed to fetch trades:", err);
+        console.error(`Failed to fetch ${activeTab} trades:`, err);
       }
     }
 
-    if (activeTab === "main") {
-      fetchData();
-      const interval = setInterval(fetchData, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [activeTab]);
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, [activeTab]); // Now fetches correct endpoint based on activeTab
 
+  // ... rest of the component stays EXACTLY THE SAME ...
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       {/* Tabs */}
