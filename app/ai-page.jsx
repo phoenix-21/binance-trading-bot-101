@@ -25,7 +25,7 @@ function minus5AndFormat(dateStr) {
 }
 
 export default function AIPage() {
-  const [balance, setBalance] = useState(10000);
+  const [balance, setBalance] = useState("-");
   const [latestTrades, setLatestTrades] = useState([]);
   const [profits, setProfits] = useState([]);
   const [losses, setLosses] = useState([]);
@@ -63,7 +63,7 @@ export default function AIPage() {
               })
               .replace("AM", "am")
               .replace("PM", "pm"),
-            balance: data.balance.toFixed(2),
+            balance: typeof data.balance === "number" ? data.balance.toFixed(2) : data.balance,
           },
         ]);
       } catch (err) {
@@ -87,7 +87,9 @@ export default function AIPage() {
         {/* Balance */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2">AI Balance</h2>
-          <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>
+          <p className="text-2xl text-green-400">
+            {typeof balance === "number" ? balance.toFixed(2) : balance} USDT
+          </p>
         </div>
 
         {/* Latest Trades */}
@@ -109,6 +111,8 @@ export default function AIPage() {
                   <span className="text-gray-400">
                     ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
                   </span>
+                  <br />
+                  AI Score: <span className="text-blue-400">{(t.aiScore * 100).toFixed(1)}%</span>
                   <br />
                   profit:{" "}
                   <span
