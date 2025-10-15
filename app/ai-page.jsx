@@ -83,16 +83,15 @@ export default function AIPage() {
         AI-powered trading analysis and data collection
       </p>
 
-      {/* 🌿 Neon Divider */}
-      <div className="flex justify-center mb-8">
-        <div className="w-24 h-1 bg-green-400 rounded-full shadow-[0_0_15px_#22c55e]"></div>
-      </div>
-
       <div className="grid md:grid-cols-3 gap-6">
         {/* Balance */}
         <div className="bg-gray-800 p-4 rounded-2xl shadow">
           <h2 className="font-semibold mb-2">AI Balance</h2>
-          <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>
+
+          {/* 🌿 Neon green hyphen instead of number */}
+          <div className="flex justify-center items-center">
+            <div className="w-16 h-1 bg-green-400 rounded-full shadow-[0_0_15px_#22c55e]"></div>
+          </div>
         </div>
 
         {/* Latest Trades */}
@@ -162,11 +161,6 @@ export default function AIPage() {
         </div>
       </div>
 
-      {/* 🌿 Neon Divider */}
-      <div className="flex justify-center my-8">
-        <div className="w-24 h-1 bg-green-400 rounded-full shadow-[0_0_15px_#22c55e]"></div>
-      </div>
-
       {/* Losses */}
       <div className="bg-gray-800 p-4 rounded-2xl shadow mt-6">
         <h2 className="font-semibold mb-2 text-red-400">
@@ -197,11 +191,6 @@ export default function AIPage() {
             ))
           )}
         </ul>
-      </div>
-
-      {/* 🌿 Neon Divider */}
-      <div className="flex justify-center my-8">
-        <div className="w-24 h-1 bg-green-400 rounded-full shadow-[0_0_15px_#22c55e]"></div>
       </div>
 
       {/* Profit Chart */}
