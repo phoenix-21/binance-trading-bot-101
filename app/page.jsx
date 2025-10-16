@@ -14,13 +14,11 @@ import AIPage from "./ai-page";
 function minus5AndFormat(dateStr) {
   if (!dateStr) return "-";
 
-  // If already formatted like "(10:38 am, Oct 16)", return as-is
-  if (typeof dateStr === "string" && dateStr.includes(",")) {
-    return dateStr;
-  }
+  // Convert MySQL timestamp (e.g., 2025-10-15 10:19:45.626) → ISO (2025-10-15T10:19:45.626Z)
+  const isoStr = dateStr.replace(" ", "T") + "Z";
 
-  const d = new Date(dateStr);
-  if (isNaN(d)) return "-"; // if invalid date
+  const d = new Date(isoStr);
+  if (isNaN(d)) return "-";
 
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
 
