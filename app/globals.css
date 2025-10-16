@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 body {
-  @apply bg-blue-950 text-gray-100;
+  @apply bg-gray-900 text-gray-50;
 }
 
 /* Custom Scrollbar */
 .scrollbar-custom {
   scrollbar-width: thin;
-  scrollbar-color: #475569 #1e293b;
+  scrollbar-color: #4b5563 #1f2937;
 }
 
 .scrollbar-custom::-webkit-scrollbar {
@@ -17,17 +17,17 @@ body {
 }
 
 .scrollbar-custom::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #1f2937;
   border-radius: 4px;
 }
 
 .scrollbar-custom::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #4b5563;
   border-radius: 4px;
 }
 
 .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: #6b7280;
 }
 
 /* Fade-in Animation */
