@@ -63,13 +63,13 @@ export async function GET() {
 
       const openedAtPKT_minus5 = openedMinus5
         .tz("Asia/Karachi")
-        .format("hh:mm A")
+        .format("hh:mm A, MMM D")
         .replace("AM", "am")
         .replace("PM", "pm");
 
       const closedAtPKT_minus5 = closedMinus5
         .tz("Asia/Karachi")
-        .format("hh:mm A")
+        .format("hh:mm A, MMM D")
         .replace("AM", "am")
         .replace("PM", "pm");
 
@@ -100,4 +100,4 @@ export async function GET() {
     console.error("❌ Failed to fetch from Neon Postgres:", err);
     return Response.json({ error: "Database query failed" }, { status: 500 });
   }
-      }
+}
