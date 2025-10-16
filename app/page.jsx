@@ -14,7 +14,8 @@ import AIPage from "./ai-page";
 function minus5AndFormat(dateStr) {
   const d = new Date(dateStr);
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
-  return minus5
+
+  const time = minus5
     .toLocaleTimeString("en-PK", {
       hour: "2-digit",
       minute: "2-digit",
@@ -23,6 +24,14 @@ function minus5AndFormat(dateStr) {
     })
     .replace("AM", "am")
     .replace("PM", "pm");
+
+  const date = minus5.toLocaleDateString("en-PK", {
+    month: "short", // Oct
+    day: "numeric", // 16
+    timeZone: "Asia/Karachi",
+  });
+
+  return `${time}, ${date}`; // e.g. "10:38 am, Oct 16"
 }
 
 export default function Home() {
