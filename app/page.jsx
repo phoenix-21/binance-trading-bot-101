@@ -8,6 +8,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import AIPage from "./ai-page";
 
@@ -89,9 +90,9 @@ export default function Home() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-800 border border-gray-600 p-3 rounded-lg shadow-lg">
-          <p className="text-gray-200 text-sm">{`Time: ${label}`}</p>
-          <p className="text-green-400 text-sm">{`Balance: ${payload[0].value} USDT`}</p>
+        <div className="bg-blue-900 border border-blue-800 p-3 rounded-lg shadow-lg shadow-blue-900/50">
+          <p className="text-gray-100 text-sm font-medium">{`Time: ${label}`}</p>
+          <p className="text-teal-400 text-sm">{`Balance: ${payload[0].value} USDT`}</p>
         </div>
       );
     }
@@ -99,29 +100,29 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 font-sans">
+    <div className="min-h-screen bg-blue-950 text-gray-100 font-sans">
       {/* Header */}
-      <header className="bg-gray-900 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="bg-blue-900 shadow-md sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="text-2xl font-bold text-green-400">TradeX Bot</div>
+            <span className="text-2xl font-bold text-teal-400">TradeX Bot</span>
           </div>
-          <nav className="flex space-x-4">
+          <nav className="flex space-x-2">
             <button
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === "main"
-                  ? "bg-green-500 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  ? "bg-blue-500 text-white"
+                  : "text-gray-300 hover:bg-blue-800 hover:text-white"
               }`}
               onClick={() => setActiveTab("main")}
             >
               Main Trades
             </button>
             <button
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === "ai"
-                  ? "bg-green-500 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  ? "bg-blue-500 text-white"
+                  : "text-gray-300 hover:bg-blue-800 hover:text-white"
               }`}
               onClick={() => setActiveTab("ai")}
             >
@@ -133,51 +134,52 @@ export default function Home() {
 
       {/* Content */}
       {activeTab === "main" ? (
-        <main className="max-w-7xl mx-auto px-4 py-8">
-          <h1 className="text-3xl font-semibold text-white mb-2">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-2xl font-semibold text-gray-100 mb-2">
             Trading Dashboard
           </h1>
-          <p className="text-gray-400 mb-8">
-            Real-time trading analysis and performance metrics
+          <p className="text-gray-300 text-sm mb-8">
+            Monitor and analyze your trading performance in real-time
           </p>
 
           <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
             {/* Balance Card */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200">
-              <h2 className="text-lg font-medium text-gray-300 mb-4">Account Balance</h2>
+            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+              <h2 className="text-lg font-medium text-gray-300 mb-3">Account Balance</h2>
               <div className="flex items-center space-x-3">
                 {typeof balance === "number" ? (
                   <>
-                    <span className="text-4xl font-bold text-green-400">
+                    <span className="text-3xl font-bold text-teal-400">
                       {balance.toFixed(2)}
                     </span>
-                    <span className="text-gray-400 text-xl">USDT</span>
+                    <span className="text-gray-300 text-lg">USDT</span>
                   </>
                 ) : (
-                  <span className="text-4xl font-bold text-green-400">-</span>
+                  <span className="text-3xl font-bold text-gray-300">-</span>
                 )}
               </div>
             </div>
 
             {/* Latest Trades Card */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200">
-              <h2 className="text-lg font-medium text-gray-300 mb-4">Latest Trades</h2>
+            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+              <h2 className="text-lg font-medium text-gray-300 mb-3">Recent Trades</h2>
               {latestTrades.length === 0 ? (
-                <p className="text-gray-400">No trades yet</p>
+                <p className="text-gray-300 text-sm">No trades yet</p>
               ) : (
-                <div className="space-y-4 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
                   {latestTrades.map((t, i) => (
-                    <div key={i} className="border-b border-gray-700 pb-2 last:border-b-0">
-                      <div className="font-semibold text-white">{t.symbol}</div>
-                      <div className="text-sm text-gray-400">
-                        Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                    <div key={i} className="flex justify-between items-center border-b border-blue-800 pb-2 last:border-b-0">
+                      <div>
+                        <div className="font-medium text-gray-100">{t.symbol}</div>
+                        <div className="text-xs text-gray-300">
+                          Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                        </div>
+                        <div className="text-xs text-gray-300">
+                          Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                        </div>
                       </div>
                       <div className="text-sm">
-                        Profit:{" "}
-                        <span className={t.profit >= 0 ? "text-green-400" : "text-red-400"}>
+                        <span className={t.profit >= 0 ? "text-teal-400" : "text-red-400"}>
                           {t.profit.toFixed(2)}%
                         </span>
                       </div>
@@ -188,25 +190,27 @@ export default function Home() {
             </div>
 
             {/* Profits Card */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200">
-              <h2 className="text-lg font-medium text-green-400 mb-4">
+            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+              <h2 className="text-lg font-medium text-teal-400 mb-3">
                 Profitable Trades ({profits24hCount})
               </h2>
               {profits.length === 0 ? (
-                <p className="text-gray-400">No profitable trades yet</p>
+                <p className="text-gray-300 text-sm">No profitable trades yet</p>
               ) : (
-                <div className="space-y-4 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
                   {profits.map((t, i) => (
-                    <div key={i} className="border-b border-gray-700 pb-2 last:border-b-0">
-                      <div className="font-semibold text-white">{t.symbol}</div>
-                      <div className="text-sm text-gray-400">
-                        Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                    <div key={i} className="flex justify-between items-center border-b border-blue-800 pb-2 last:border-b-0">
+                      <div>
+                        <div className="font-medium text-gray-100">{t.symbol}</div>
+                        <div className="text-xs text-gray-300">
+                          Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                        </div>
+                        <div className="text-xs text-gray-300">
+                          Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                        </div>
                       </div>
                       <div className="text-sm">
-                        Profit: <span className="text-green-400">{t.profit.toFixed(2)}%</span>
+                        <span className="text-teal-400">{t.profit.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}
@@ -215,25 +219,27 @@ export default function Home() {
             </div>
 
             {/* Losses Card */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200 lg:col-span-3 md:col-span-2">
-              <h2 className="text-lg font-medium text-red-400 mb-4">
+            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in lg:col-span-3 md:col-span-2">
+              <h2 className="text-lg font-medium text-red-400 mb-3">
                 Losing Trades ({losses24hCount})
               </h2>
               {losses.length === 0 ? (
-                <p className="text-gray-400">No losing trades yet</p>
+                <p className="text-gray-300 text-sm">No losing trades yet</p>
               ) : (
-                <div className="space-y-4 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
                   {losses.map((t, i) => (
-                    <div key={i} className="border-b border-gray-700 pb-2 last:border-b-0">
-                      <div className="font-semibold text-white">{t.symbol}</div>
-                      <div className="text-sm text-gray-400">
-                        Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                    <div key={i} className="flex justify-between items-center border-b border-blue-800 pb-2 last:border-b-0">
+                      <div>
+                        <div className="font-medium text-gray-100">{t.symbol}</div>
+                        <div className="text-xs text-gray-300">
+                          Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                        </div>
+                        <div className="text-xs text-gray-300">
+                          Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                        </div>
                       </div>
                       <div className="text-sm">
-                        Profit: <span className="text-red-400">{t.profit.toFixed(2)}%</span>
+                        <span className="text-red-400">{t.profit.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}
@@ -243,29 +249,33 @@ export default function Home() {
           </div>
 
           {/* Profit Chart */}
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold text-white mb-4">Profit Over Time</h3>
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 h-80">
+          <div className="mt-8 animate-fade-in">
+            <h3 className="text-lg font-semibold text-gray-100 mb-3">Profit Over Time</h3>
+            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 h-96">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={profitHistory}>
+                  <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="time"
-                    stroke="#9CA3AF"
-                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    stroke="#94A3B8"
+                    tick={{ fontSize: 12, fill: "#94A3B8" }}
                     tickLine={false}
-                    axisLine={{ stroke: "#374151" }}
+                    axisLine={{ stroke: "#334155" }}
+                    tickMargin={8}
                   />
                   <YAxis
-                    stroke="#9CA3AF"
-                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    stroke="#94A3B8"
+                    tick={{ fontSize: 12, fill: "#94A3B8" }}
                     tickLine={false}
-                    axisLine={{ stroke: "#374151" }}
+                    axisLine={{ stroke: "#334155" }}
+                    tickMargin={8}
+                    tickFormatter={(value) => `${value} USDT`}
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Line
                     type="monotone"
                     dataKey="balance"
-                    stroke="#4ade80"
+                    stroke="#2dd4bf"
                     strokeWidth={2}
                     dot={false}
                   />
