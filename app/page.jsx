@@ -23,7 +23,7 @@ function minus5AndFormat(dateStr) {
       hour12: true,
       timeZone: "Asia/Karachi",
     })
-    .replace(/,/, "") // Remove comma between date and time
+    .replace(/,/, "")
     .replace("AM", "am")
     .replace("PM", "pm");
 }
@@ -60,7 +60,7 @@ export default function Home() {
           ...prev.slice(-100),
           {
             time: nowMinus5
-              .toLocaleTimeString("en-PK", {
+              .toLocaleString("en-PK", {
                 timeZone: "Asia/Karachi",
                 hour: "2-digit",
                 minute: "2-digit",
@@ -86,180 +86,192 @@ export default function Home() {
     }
   }, [activeTab]);
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-800 border border-gray-600 p-3 rounded-lg shadow-lg">
+          <p className="text-gray-200 text-sm">{`Time: ${label}`}</p>
+          <p className="text-green-400 text-sm">{`Balance: ${payload[0].value} USDT`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      {/* Tabs */}
-      <div className="flex border-b border-gray-700 p-6 pb-0">
-        <button
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === "main"
-              ? "bg-gray-800 text-green-400 border-b-2 border-green-400"
-              : "text-gray-400 hover:text-gray-200"
-          }`}
-          onClick={() => setActiveTab("main")}
-        >
-          Main Trades
-        </button>
-        <button
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === "ai"
-              ? "bg-gray-800 text-green-400 border-b-2 border-green-400"
-              : "text-gray-400 hover:text-gray-200"
-          }`}
-          onClick={() => setActiveTab("ai")}
-        >
-          AI Trades
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 font-sans">
+      {/* Header */}
+      <header className="bg-gray-900 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="text-2xl font-bold text-green-400">TradeX Bot</div>
+          </div>
+          <nav className="flex space-x-4">
+            <button
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                activeTab === "main"
+                  ? "bg-green-500 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              onClick={() => setActiveTab("main")}
+            >
+              Main Trades
+            </button>
+            <button
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                activeTab === "ai"
+                  ? "bg-green-500 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              onClick={() => setActiveTab("ai")}
+            >
+              AI Trades
+            </button>
+          </nav>
+        </div>
+      </header>
 
       {/* Content */}
       {activeTab === "main" ? (
-        <main className="p-6">
-          <h1 className="text-3xl font-bold text-green-400 mb-2">
-            📈 TradeX Bot
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          <h1 className="text-3xl font-semibold text-white mb-2">
+            Trading Dashboard
           </h1>
-          <p className="text-gray-400 mb-6">
-            Trading analysis and data collection
+          <p className="text-gray-400 mb-8">
+            Real-time trading analysis and performance metrics
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* ✅ Balance */}
-            <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700">
-              <h2 className="font-semibold mb-2 text-gray-300">Balance</h2>
-              <div className="flex items-center justify-start space-x-2">
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+            {/* Balance Card */}
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200">
+              <h2 className="text-lg font-medium text-gray-300 mb-4">Account Balance</h2>
+              <div className="flex items-center space-x-3">
                 {typeof balance === "number" ? (
                   <>
-                    <span className="text-3xl text-green-400 font-semibold">
+                    <span className="text-4xl font-bold text-green-400">
                       {balance.toFixed(2)}
                     </span>
-                    <span className="text-gray-400 text-lg">USDT</span>
+                    <span className="text-gray-400 text-xl">USDT</span>
                   </>
                 ) : (
-                  <span className="text-3xl text-green-400 font-semibold">-</span>
+                  <span className="text-4xl font-bold text-green-400">-</span>
                 )}
               </div>
             </div>
 
-            {/* Latest Trades */}
-            <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700">
-              <h2 className="font-semibold mb-2 text-gray-300">Latest 5 Trades</h2>
-              <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
-                {latestTrades.length === 0 ? (
-                  <p>No trades yet</p>
-                ) : (
-                  latestTrades.map((t, i) => (
-                    <li key={i}>
-                      <div className="font-semibold">{t.symbol}</div>
-                      entry: {t.entry.toFixed(4)}{" "}
-                      <span className="text-gray-400">
-                        ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                      </span>
-                      <br />
-                      exit: {t.exit.toFixed(4)}{" "}
-                      <span className="text-gray-400">
-                        ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                      </span>
-                      <br />
-                      profit:{" "}
-                      <span
-                        className={
-                          t.profit >= 0
-                            ? "text-green-400"
-                            : "text-red-400"
-                        }
-                      >
-                        {t.profit.toFixed(2)}%
-                      </span>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-
-            {/* Profits */}
-            <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700">
-              <h2 className="font-semibold mb-2 text-green-400">
-                Profits ({profits24hCount})
-              </h2>
-              <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
-                {profits.length === 0 ? (
-                  <p>No profitable trades yet</p>
-                ) : (
-                  profits.map((t, i) => (
-                    <li key={i}>
-                      <div className="font-semibold">{t.symbol}</div>
-                      entry: {t.entry.toFixed(4)}{" "}
-                      <span className="text-gray-400">
-                        ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                      </span>
-                      <br />
-                      exit: {t.exit.toFixed(4)}{" "}
-                      <span className="text-gray-400">
-                        ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                      </span>
-                      <br />
-                      profit:{" "}
-                      <span className="text-green-400">
-                        {t.profit.toFixed(2)}%
-                      </span>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-          </div>
-
-          {/* Losses */}
-          <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700 mt-6">
-            <h2 className="font-semibold mb-2 text-red-400">
-              Losses ({losses24hCount})
-            </h2>
-            <ul className="text-sm space-y-2 max-h-64 overflow-y-auto">
-              {losses.length === 0 ? (
-                <p>No losing trades yet</p>
+            {/* Latest Trades Card */}
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200">
+              <h2 className="text-lg font-medium text-gray-300 mb-4">Latest Trades</h2>
+              {latestTrades.length === 0 ? (
+                <p className="text-gray-400">No trades yet</p>
               ) : (
-                losses.map((t, i) => (
-                  <li key={i}>
-                    <div className="font-semibold">{t.symbol}</div>
-                    entry: {t.entry.toFixed(4)}{" "}
-                    <span className="text-gray-400">
-                      ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                    </span>
-                    <br />
-                    exit: {t.exit.toFixed(4)}{" "}
-                    <span className="text-gray-400">
-                      ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                    </span>
-                    <br />
-                    profit:{" "}
-                    <span className="text-red-400">
-                      {t.profit.toFixed(2)}%
-                    </span>
-                  </li>
-                ))
+                <div className="space-y-4 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                  {latestTrades.map((t, i) => (
+                    <div key={i} className="border-b border-gray-700 pb-2 last:border-b-0">
+                      <div className="font-semibold text-white">{t.symbol}</div>
+                      <div className="text-sm text-gray-400">
+                        Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                      </div>
+                      <div className="text-sm">
+                        Profit:{" "}
+                        <span className={t.profit >= 0 ? "text-green-400" : "text-red-400"}>
+                          {t.profit.toFixed(2)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-            </ul>
+            </div>
+
+            {/* Profits Card */}
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200">
+              <h2 className="text-lg font-medium text-green-400 mb-4">
+                Profitable Trades ({profits24hCount})
+              </h2>
+              {profits.length === 0 ? (
+                <p className="text-gray-400">No profitable trades yet</p>
+              ) : (
+                <div className="space-y-4 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                  {profits.map((t, i) => (
+                    <div key={i} className="border-b border-gray-700 pb-2 last:border-b-0">
+                      <div className="font-semibold text-white">{t.symbol}</div>
+                      <div className="text-sm text-gray-400">
+                        Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                      </div>
+                      <div className="text-sm">
+                        Profit: <span className="text-green-400">{t.profit.toFixed(2)}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Losses Card */}
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:shadow-xl transition-shadow duration-200 lg:col-span-3 md:col-span-2">
+              <h2 className="text-lg font-medium text-red-400 mb-4">
+                Losing Trades ({losses24hCount})
+              </h2>
+              {losses.length === 0 ? (
+                <p className="text-gray-400">No losing trades yet</p>
+              ) : (
+                <div className="space-y-4 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                  {losses.map((t, i) => (
+                    <div key={i} className="border-b border-gray-700 pb-2 last:border-b-0">
+                      <div className="font-semibold text-white">{t.symbol}</div>
+                      <div className="text-sm text-gray-400">
+                        Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                      </div>
+                      <div className="text-sm">
+                        Profit: <span className="text-red-400">{t.profit.toFixed(2)}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Profit Chart */}
-          <h3 className="text-xl mt-8 mb-2 font-semibold">
-            📊 Profit Over Time
-          </h3>
-          <div className="bg-gray-800 p-4 rounded-[1.5rem] shadow-lg border border-gray-700 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={profitHistory}>
-                <XAxis dataKey="time" hide />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="balance"
-                  stroke="#4ade80"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold text-white mb-4">Profit Over Time</h3>
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={profitHistory}>
+                  <XAxis
+                    dataKey="time"
+                    stroke="#9CA3AF"
+                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#374151" }}
+                  />
+                  <YAxis
+                    stroke="#9CA3AF"
+                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#374151" }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="balance"
+                    stroke="#4ade80"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </main>
       ) : (
