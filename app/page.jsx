@@ -15,12 +15,15 @@ function minus5AndFormat(dateStr) {
   const d = new Date(dateStr);
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
   return minus5
-    .toLocaleTimeString("en-PK", {
+    .toLocaleString("en-PK", {
+      month: "short",
+      day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
       timeZone: "Asia/Karachi",
     })
+    .replace(/,/, "") // Remove comma between date and time
     .replace("AM", "am")
     .replace("PM", "pm");
 }
@@ -264,4 +267,4 @@ export default function Home() {
       )}
     </div>
   );
-                }
+}
