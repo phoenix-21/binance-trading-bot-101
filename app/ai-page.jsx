@@ -25,7 +25,7 @@ timeZone: "Asia/Karachi",
 }
 
 export default function AIPage() {
-const [balance, setBalance] = useState(10000);
+const [balance, setBalance] = useState("-");
 const [latestTrades, setLatestTrades] = useState([]);
 const [profits, setProfits] = useState([]);
 const [losses, setLosses] = useState([]);
