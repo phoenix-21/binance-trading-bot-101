@@ -1,4 +1,4 @@
-// app/api/ai-trades/route.js
+// app/api/ai-trades/route.jsx
 import { Pool } from "pg";
 import moment from "moment-timezone";
 
@@ -66,13 +66,13 @@ export async function GET() {
 
       const openedAtPKT_minus5 = openedMinus5
         .tz("Asia/Karachi")
-        .format("hh:mm A")
+        .format("hh:mm A, MMM D")
         .replace("AM", "am")
         .replace("PM", "pm");
 
       const closedAtPKT_minus5 = closedMinus5
         .tz("Asia/Karachi")
-        .format("hh:mm A")
+        .format("hh:mm A, MMM D")
         .replace("AM", "am")
         .replace("PM", "pm");
 
