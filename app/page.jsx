@@ -12,7 +12,16 @@ import {
 import AIPage from "./ai-page";
 
 function minus5AndFormat(dateStr) {
+  if (!dateStr) return "-";
+
+  // If already formatted like "(10:38 am, Oct 16)", return as-is
+  if (typeof dateStr === "string" && dateStr.includes(",")) {
+    return dateStr;
+  }
+
   const d = new Date(dateStr);
+  if (isNaN(d)) return "-"; // if invalid date
+
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
 
   const time = minus5
