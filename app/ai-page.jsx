@@ -88,7 +88,18 @@ AI-powered trading analysis and data collection
     {/* Balance */}    
     <div className="bg-gray-800 p-4 rounded-2xl shadow">    
       <h2 className="font-semibold mb-2">AI Balance</h2>    
-      <p className="text-2xl text-green-400">{balance.toFixed(2)} USDT</p>    
+<div className="flex items-center justify-start space-x-2">
+                {typeof balance === "number" ? (
+                  <>
+                    <span className="text-3xl text-green-400 font-semibold">
+                      {balance.toFixed(2)}
+                    </span>
+                    <span className="text-gray-400 text-lg">USDT</span>
+                  </>
+                ) : (
+                  <span className="text-3xl text-green-400 font-semibold">-</span>
+                )}
+              </div>    
     </div>    {/* Latest Trades */}    
 <div className="bg-gray-800 p-4 rounded-2xl shadow">    
   <h2 className="font-semibold mb-2">Latest 5 AI Trades</h2>    
