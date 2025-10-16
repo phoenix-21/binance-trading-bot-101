@@ -8,6 +8,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 
 function minus5AndFormat(dateStr) {
@@ -22,7 +23,7 @@ function minus5AndFormat(dateStr) {
       hour12: true,
       timeZone: "Asia/Karachi",
     })
-    .replace(/,/, "") // Remove comma between date and time
+    .replace(/,/, "")
     .replace("AM", "am")
     .replace("PM", "pm");
 }
@@ -58,7 +59,7 @@ export default function AIPage() {
           ...prev.slice(-100),
           {
             time: nowMinus5
-              .toLocaleTimeString("en-PK", {
+              .toLocaleString("en-PK", {
                 timeZone: "Asia/Karachi",
                 hour: "2-digit",
                 minute: "2-digit",
@@ -66,7 +67,7 @@ export default function AIPage() {
               })
               .replace("AM", "am")
               .replace("PM", "pm"),
-            balance: data.balance.toFixed(2),
+            balance: typeof data.balance === "number" ? data.balance.toFixed(2) : null,
           },
         ]);
       } catch (err) {
@@ -79,138 +80,163 @@ export default function AIPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-800 border border-gray-700 p-3 rounded-lg shadow-lg shadow-gray-800/50">
+          <p className="text-gray-50 text-sm font-medium">{`Time: ${label}`}</p>
+          <p className="text-lime-400 text-sm">{`Balance: ${payload[0].value} USDT`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <main className="p-6 bg-gray-900 text-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-green-400 mb-2">🤖 AI TradeX Bot</h1>
-      <p className="text-gray-400 mb-6">AI-powered trading analysis and data collection</p>
-      <div className="grid md:grid-cols-3 gap-6">
-        {/* Balance */}
-        <div className="bg-gray-800 p-4 rounded-2xl shadow">
-          <h2 className="font-semibold mb-2">AI Balance</h2>
-          <div className="flex items-center justify-start space-x-2">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-900 text-gray-50 font-sans">
+      <h1 className="text-2xl font-semibold text-gray-50 mb-2">AI Trading Dashboard</h1>
+      <p className="text-gray-300 text-sm mb-8">AI-powered trading analysis and performance metrics</p>
+
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+        {/* Balance Card */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+          <h2 className="text-lg font-medium text-gray-300 mb-3">AI Account Balance</h2>
+          <div className="flex items-center space-x-3">
             {typeof balance === "number" ? (
               <>
-                <span className="text-3xl text-green-400 font-semibold">
+                <span className="text-3xl font-bold text-lime-400">
                   {balance.toFixed(2)}
                 </span>
-                <span className="text-gray-400 text-lg">USDT</span>
+                <span className="text-gray-300 text-lg">USDT</span>
               </>
             ) : (
-              <span className="text-3xl text-green-400 font-semibold">-</span>
+              <span className="text-3xl font-bold text-gray-300">-</span>
             )}
           </div>
         </div>
-        {/* Latest Trades */}
-        <div className="bg-gray-800 p-4 rounded-2xl shadow">
-          <h2 className="font-semibold mb-2">Latest 5 AI Trades</h2>
-          <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
-            {latestTrades.length === 0 ? (
-              <p>No AI trades yet</p>
-            ) : (
-              latestTrades.map((t, i) => (
-                <li key={i}>
-                  <div className="font-semibold">{t.symbol}</div>
-                  entry: {t.entry.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                  </span>
-                  <br />
-                  exit: {t.exit.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                  </span>
-                  <br />
-                  profit:{" "}
-                  <span
-                    className={t.profit >= 0 ? "text-green-400" : "text-red-400"}
-                  >
-                    {t.profit.toFixed(2)}%
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-        {/* Profits */}
-        <div className="bg-gray-800 p-4 rounded-2xl shadow">
-          <h2 className="font-semibold mb-2 text-green-400">
-            AI Profits ({profits24hCount})
-          </h2>
-          <ul className="text-sm space-y-2 max-h-48 overflow-y-auto">
-            {profits.length === 0 ? (
-              <p>No profitable AI trades yet</p>
-            ) : (
-              profits.map((t, i) => (
-                <li key={i}>
-                  <div className="font-semibold">{t.symbol}</div>
-                  entry: {t.entry.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                  </span>
-                  <br />
-                  exit: {t.exit.toFixed(4)}{" "}
-                  <span className="text-gray-400">
-                    ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                  </span>
-                  <br />
-                  profit:{" "}
-                  <span className="text-green-400">
-                    {t.profit.toFixed(2)}%
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-      </div>
-      {/* Losses */}
-      <div className="bg-gray-800 p-4 rounded-2xl shadow mt-6">
-        <h2 className="font-semibold mb-2 text-red-400">
-          AI Losses ({losses24hCount})
-        </h2>
-        <ul className="text-sm space-y-2 max-h-64 overflow-y-auto">
-          {losses.length === 0 ? (
-            <p>No losing AI trades yet</p>
+
+        {/* Latest Trades Card */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+          <h2 className="text-lg font-medium text-gray-300 mb-3">Recent AI Trades</h2>
+          {latestTrades.length === 0 ? (
+            <p className="text-gray-300 text-sm">No AI trades yet</p>
           ) : (
-            losses.map((t, i) => (
-              <li key={i}>
-                <div className="font-semibold">{t.symbol}</div>
-                entry: {t.entry.toFixed(4)}{" "}
-                <span className="text-gray-400">
-                  ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
-                </span>
-                <br />
-                exit: {t.exit.toFixed(4)}{" "}
-                <span className="text-gray-400">
-                  ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
-                </span>
-                <br />
-                profit:{" "}
-                <span className="text-red-400">
-                  {t.profit.toFixed(2)}%
-                </span>
-              </li>
-            ))
+            <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
+              {latestTrades.map((t, i) => (
+                <div key={i} className="flex justify-between items-center border-b border-gray-700 pb-2 last:border-b-0">
+                  <div>
+                    <div className="font-medium text-gray-50">{t.symbol}</div>
+                    <div className="text-xs text-gray-300">
+                      Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                    </div>
+                    <div className="text-xs text-gray-300">
+                      Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <span className={t.profit >= 0 ? "text-lime-400" : "text-red-400"}>
+                      {t.profit.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-        </ul>
+        </div>
+
+        {/* Profits Card */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+          <h2 className="text-lg font-medium text-lime-400 mb-3">
+            Profitable AI Trades ({profits24hCount})
+          </h2>
+          {profits.length === 0 ? (
+            <p className="text-gray-300 text-sm">No profitable AI trades yet</p>
+          ) : (
+            <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
+              {profits.map((t, i) => (
+                <div key={i} className="flex justify-between items-center border-b border-gray-700 pb-2 last:border-b-0">
+                  <div>
+                    <div className="font-medium text-gray-50">{t.symbol}</div>
+                    <div className="text-xs text-gray-300">
+                      Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                    </div>
+                    <div className="text-xs text-gray-300">
+                      Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-lime-400">{t.profit.toFixed(2)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Losses Card */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in lg:col-span-3 md:col-span-2">
+          <h2 className="text-lg font-medium text-red-400 mb-3">
+            Losing AI Trades ({losses24hCount})
+          </h2>
+          {losses.length === 0 ? (
+            <p className="text-gray-300 text-sm">No losing AI trades yet</p>
+          ) : (
+            <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
+              {losses.map((t, i) => (
+                <div key={i} className="flex justify-between items-center border-b border-gray-700 pb-2 last:border-b-0">
+                  <div>
+                    <div className="font-medium text-gray-50">{t.symbol}</div>
+                    <div className="text-xs text-gray-300">
+                      Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
+                    </div>
+                    <div className="text-xs text-gray-300">
+                      Exit: {t.exit.toFixed(4)} ({t.closedAtPKT_minus5 ?? minus5AndFormat(t.closedAt)})
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-red-400">{t.profit.toFixed(2)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
       {/* Profit Chart */}
-      <h3 className="text-xl mt-8 mb-2 font-semibold">📊 AI Profit Over Time</h3>
-      <div className="bg-gray-800 p-4 rounded-2xl shadow h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={profitHistory}>
-            <XAxis dataKey="time" hide />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="balance"
-              stroke="#4ade80"
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="mt-8 animate-fade-in">
+        <h3 className="text-lg font-semibold text-gray-50 mb-3">AI Profit Over Time</h3>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={profitHistory}>
+              <CartesianGrid stroke="#4b5563" strokeDasharray="3 3" />
+              <XAxis
+                dataKey="time"
+                stroke="#9ca3af"
+                tick={{ fontSize: 12, fill: "#9ca3af" }}
+                tickLine={false}
+                axisLine={{ stroke: "#4b5563" }}
+                tickMargin={8}
+              />
+              <YAxis
+                stroke="#9ca3af"
+                tick={{ fontSize: 12, fill: "#9ca3af" }}
+                tickLine={false}
+                axisLine={{ stroke: "#4b5563" }}
+                tickMargin={8}
+                tickFormatter={(value) => `${value} USDT`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="balance"
+                stroke="#a3e635"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </main>
   );
