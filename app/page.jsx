@@ -90,9 +90,9 @@ export default function Home() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-blue-900 border border-blue-800 p-3 rounded-lg shadow-lg shadow-blue-900/50">
-          <p className="text-gray-100 text-sm font-medium">{`Time: ${label}`}</p>
-          <p className="text-teal-400 text-sm">{`Balance: ${payload[0].value} USDT`}</p>
+        <div className="bg-slate-800 border border-slate-700 p-3 rounded-lg shadow-lg shadow-slate-800/50">
+          <p className="text-gray-50 text-sm font-medium">{`Time: ${label}`}</p>
+          <p className="text-cyan-400 text-sm">{`Balance: ${payload[0].value} USDT`}</p>
         </div>
       );
     }
@@ -100,19 +100,19 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-950 text-gray-100 font-sans">
+    <div className="min-h-screen bg-slate-900 text-gray-50 font-sans">
       {/* Header */}
-      <header className="bg-blue-900 shadow-md sticky top-0 z-10">
+      <header className="bg-slate-800 shadow-md sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <span className="text-2xl font-bold text-teal-400">TradeX Bot</span>
+            <span className="text-2xl font-bold text-cyan-400">TradeX Bot</span>
           </div>
           <nav className="flex space-x-2">
             <button
               className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === "main"
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-300 hover:bg-blue-800 hover:text-white"
+                  ? "bg-indigo-600 text-white"
+                  : "text-gray-300 hover:bg-indigo-700 hover:text-white"
               }`}
               onClick={() => setActiveTab("main")}
             >
@@ -121,8 +121,8 @@ export default function Home() {
             <button
               className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === "ai"
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-300 hover:bg-blue-800 hover:text-white"
+                  ? "bg-indigo-600 text-white"
+                  : "text-gray-300 hover:bg-indigo-700 hover:text-white"
               }`}
               onClick={() => setActiveTab("ai")}
             >
@@ -135,21 +135,21 @@ export default function Home() {
       {/* Content */}
       {activeTab === "main" ? (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-2xl font-semibold text-gray-100 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-50 mb-2">
             Trading Dashboard
           </h1>
           <p className="text-gray-300 text-sm mb-8">
-            Monitor and analyze your trading performance in real-time
+            Real-time insights into your trading performance
           </p>
 
           <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
             {/* Balance Card */}
-            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+            <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
               <h2 className="text-lg font-medium text-gray-300 mb-3">Account Balance</h2>
               <div className="flex items-center space-x-3">
                 {typeof balance === "number" ? (
                   <>
-                    <span className="text-3xl font-bold text-teal-400">
+                    <span className="text-3xl font-bold text-cyan-400">
                       {balance.toFixed(2)}
                     </span>
                     <span className="text-gray-300 text-lg">USDT</span>
@@ -161,16 +161,16 @@ export default function Home() {
             </div>
 
             {/* Latest Trades Card */}
-            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+            <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
               <h2 className="text-lg font-medium text-gray-300 mb-3">Recent Trades</h2>
               {latestTrades.length === 0 ? (
                 <p className="text-gray-300 text-sm">No trades yet</p>
               ) : (
                 <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
                   {latestTrades.map((t, i) => (
-                    <div key={i} className="flex justify-between items-center border-b border-blue-800 pb-2 last:border-b-0">
+                    <div key={i} className="flex justify-between items-center border-b border-slate-700 pb-2 last:border-b-0">
                       <div>
-                        <div className="font-medium text-gray-100">{t.symbol}</div>
+                        <div className="font-medium text-gray-50">{t.symbol}</div>
                         <div className="text-xs text-gray-300">
                           Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                         </div>
@@ -179,7 +179,7 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="text-sm">
-                        <span className={t.profit >= 0 ? "text-teal-400" : "text-red-400"}>
+                        <span className={t.profit >= 0 ? "text-cyan-400" : "text-red-500"}>
                           {t.profit.toFixed(2)}%
                         </span>
                       </div>
@@ -190,8 +190,8 @@ export default function Home() {
             </div>
 
             {/* Profits Card */}
-            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
-              <h2 className="text-lg font-medium text-teal-400 mb-3">
+            <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in">
+              <h2 className="text-lg font-medium text-cyan-400 mb-3">
                 Profitable Trades ({profits24hCount})
               </h2>
               {profits.length === 0 ? (
@@ -199,9 +199,9 @@ export default function Home() {
               ) : (
                 <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
                   {profits.map((t, i) => (
-                    <div key={i} className="flex justify-between items-center border-b border-blue-800 pb-2 last:border-b-0">
+                    <div key={i} className="flex justify-between items-center border-b border-slate-700 pb-2 last:border-b-0">
                       <div>
-                        <div className="font-medium text-gray-100">{t.symbol}</div>
+                        <div className="font-medium text-gray-50">{t.symbol}</div>
                         <div className="text-xs text-gray-300">
                           Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                         </div>
@@ -210,7 +210,7 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="text-sm">
-                        <span className="text-teal-400">{t.profit.toFixed(2)}%</span>
+                        <span className="text-cyan-400">{t.profit.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}
@@ -219,8 +219,8 @@ export default function Home() {
             </div>
 
             {/* Losses Card */}
-            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 hover:shadow-lg transition-shadow duration-200 animate-fade-in lg:col-span-3 md:col-span-2">
-              <h2 className="text-lg font-medium text-red-400 mb-3">
+            <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700 hover:shadow-lg transition-shadow duration-200 animate-fade-in lg:col-span-3 md:col-span-2">
+              <h2 className="text-lg font-medium text-red-500 mb-3">
                 Losing Trades ({losses24hCount})
               </h2>
               {losses.length === 0 ? (
@@ -228,9 +228,9 @@ export default function Home() {
               ) : (
                 <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-custom">
                   {losses.map((t, i) => (
-                    <div key={i} className="flex justify-between items-center border-b border-blue-800 pb-2 last:border-b-0">
+                    <div key={i} className="flex justify-between items-center border-b border-slate-700 pb-2 last:border-b-0">
                       <div>
-                        <div className="font-medium text-gray-100">{t.symbol}</div>
+                        <div className="font-medium text-gray-50">{t.symbol}</div>
                         <div className="text-xs text-gray-300">
                           Entry: {t.entry.toFixed(4)} ({t.openedAtPKT_minus5 ?? minus5AndFormat(t.openedAt)})
                         </div>
@@ -239,7 +239,7 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="text-sm">
-                        <span className="text-red-400">{t.profit.toFixed(2)}%</span>
+                        <span className="text-red-500">{t.profit.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}
@@ -250,24 +250,24 @@ export default function Home() {
 
           {/* Profit Chart */}
           <div className="mt-8 animate-fade-in">
-            <h3 className="text-lg font-semibold text-gray-100 mb-3">Profit Over Time</h3>
-            <div className="bg-blue-900 p-6 rounded-lg shadow-md border border-blue-800 h-96">
+            <h3 className="text-lg font-semibold text-gray-50 mb-3">Profit Over Time</h3>
+            <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700 h-96">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={profitHistory}>
-                  <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#475569" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="time"
                     stroke="#94A3B8"
                     tick={{ fontSize: 12, fill: "#94A3B8" }}
                     tickLine={false}
-                    axisLine={{ stroke: "#334155" }}
+                    axisLine={{ stroke: "#475569" }}
                     tickMargin={8}
                   />
                   <YAxis
                     stroke="#94A3B8"
                     tick={{ fontSize: 12, fill: "#94A3B8" }}
                     tickLine={false}
-                    axisLine={{ stroke: "#334155" }}
+                    axisLine={{ stroke: "#475569" }}
                     tickMargin={8}
                     tickFormatter={(value) => `${value} USDT`}
                   />
@@ -275,8 +275,8 @@ export default function Home() {
                   <Line
                     type="monotone"
                     dataKey="balance"
-                    stroke="#2dd4bf"
-                    strokeWidth={2}
+                    stroke="#22d3ee"
+                    strokeWidth=2
                     dot={false}
                   />
                 </LineChart>
