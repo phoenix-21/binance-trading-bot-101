@@ -12,17 +12,9 @@ import {
 import AIPage from "./ai-page";
 
 function minus5AndFormat(dateStr) {
-  if (!dateStr) return "-";
-
-  // Convert MySQL timestamp (e.g., 2025-10-15 10:19:45.626) → ISO (2025-10-15T10:19:45.626Z)
-  const isoStr = dateStr.replace(" ", "T") + "Z";
-
-  const d = new Date(isoStr);
-  if (isNaN(d)) return "-";
-
+  const d = new Date(dateStr);
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
-
-  const time = minus5
+  return minus5
     .toLocaleTimeString("en-PK", {
       hour: "2-digit",
       minute: "2-digit",
@@ -31,14 +23,6 @@ function minus5AndFormat(dateStr) {
     })
     .replace("AM", "am")
     .replace("PM", "pm");
-
-  const date = minus5.toLocaleDateString("en-PK", {
-    month: "short", // Oct
-    day: "numeric", // 16
-    timeZone: "Asia/Karachi",
-  });
-
-  return `${time}, ${date}`; // e.g. "10:38 am, Oct 16"
 }
 
 export default function Home() {
