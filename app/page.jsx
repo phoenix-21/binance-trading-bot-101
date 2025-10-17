@@ -39,7 +39,19 @@ export default function Home() {
   const [profits24hCount, setProfits24hCount] = useState(0);
   const [losses24hCount, setLosses24hCount] = useState(0);
   const [profitHistory, setProfitHistory] = useState([]);
+  const [filteredProfitHistory, setFilteredProfitHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("main");
+  const [timeRange, setTimeRange] = useState("24h");
+
+  const timeRanges = [
+    { label: "6 Hours", value: "6h", ms: 6 * 60 * 60 * 1000 },
+    { label: "12 Hours", value: "12h", ms: 12 * 60 * 60 * 1000 },
+    { label: "24 Hours", value: "24h", ms: 24 * 60 * 60 * 1000 },
+    { label: "3 Days", value: "3d", ms: 3 * 24 * 60 * 60 * 1000 },
+    { label: "7 Days", value: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
+    { label: "14 Days", value: "14d", ms: 14 * 24 * 60 * 60 * 1000 },
+    { label: "1 Month", value: "1m", ms: 30 * 24 * 60 * 60 * 1000 },
+  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -57,24 +69,24 @@ export default function Home() {
         setLosses24hCount(data.losses24hCount);
 
         const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
-        setProfitHistory((prev) => [
-          ...prev.slice(-100),
-          {
-            time: nowMinus5
-              .toLocaleString("en-PK", {
-                timeZone: "Asia/Karachi",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })
-              .replace("AM", "am")
-              .replace("PM", "pm"),
-            balance:
-              typeof data.balance === "number"
-                ? data.balance.toFixed(2)
-                : null,
-          },
-        ]);
+        const newEntry = {
+          time: nowMinus5
+            .toLocaleString("en-PK", {
+              timeZone: "Asia/Karachi",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })
+            .replace("AM", "am")
+            .replace("PM", "pm"),
+          balance:
+            typeof data.balance === "number"
+              ? data.balance.toFixed(2)
+              : null,
+          timestamp: nowMinus5.getTime(),
+        };
+
+        setProfitHistory((prev) => [...prev.slice(-100), newEntry]);
       } catch (err) {
         console.error("Failed to fetch trades:", err);
       }
@@ -86,6 +98,15 @@ export default function Home() {
       return () => clearInterval(interval);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const selectedRange = timeRanges.find((range) => range.value === timeRange);
+    const cutoffTime = Date.now() - 5 * 60 * 60 * 1000 - selectedRange.ms;
+    const filtered = profitHistory.filter(
+      (entry) => entry.timestamp >= cutoffTime
+    );
+    setFilteredProfitHistory(filtered);
+  }, [profitHistory, timeRange]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -250,10 +271,27 @@ export default function Home() {
 
           {/* Profit Chart */}
           <div className="mt-8 animate-fade-in">
-            <h3 className="text-lg font-semibold text-gray-50 mb-3">Profit Over Time</h3>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-semibold text-gray-50">Profit Over Time</h3>
+              <div className="flex space-x-2">
+                {timeRanges.map((range) => (
+                  <button
+                    key={range.value}
+                    className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
+                      timeRange === range.value
+                        ? "bg-purple-600 text-white"
+                        : "text-gray-300 hover:bg-purple-700 hover:text-white"
+                    }`}
+                    onClick={() => setTimeRange(range.value)}
+                  >
+                    {range.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 h-96">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={profitHistory}>
+                <LineChart data={filteredProfitHistory}>
                   <CartesianGrid stroke="#4b5563" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="time"
