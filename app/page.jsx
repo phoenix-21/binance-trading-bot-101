@@ -1,6 +1,6 @@
 // app/page.jsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -81,13 +81,17 @@ export default function Home() {
             .replace("AM", "am")
             .replace("PM", "pm"),
           balance:
-            typeof data.balance === "number"
-              ? data.balance.toFixed(2)
-              : null,
+            typeof data.balance === "number" ? data.balance.toFixed(2) : null,
           timestamp: nowMinus5.getTime(),
         };
 
-        setProfitHistory((prev) => [...prev.slice(-100), newEntry]);
+        // Only update if balance changes or history is empty
+        setProfitHistory((prev) => {
+          if (prev.length === 0 || prev[prev.length - 1].balance !== newEntry.balance) {
+            return [...prev.slice(-99), newEntry]; // Keep last 100 entries
+          }
+          return prev;
+        });
       } catch (err) {
         console.error("Failed to fetch trades:", err);
       }
@@ -95,26 +99,25 @@ export default function Home() {
 
     if (activeTab === "main") {
       fetchData();
-      const interval = setInterval(fetchData, 5000);
+      const interval = setInterval(fetchData, 15000); // Reduced frequency to 15s
       return () => clearInterval(interval);
     }
   }, [activeTab]);
 
-  // ✅ FIXED: Simplified cutoff logic + stable timeRanges reference
-  useEffect(() => {
+  // ✅ Instant filter update without delay
+  const filterProfitHistory = useCallback(() => {
     const range = timeRanges.find((r) => r.value === timeRange);
     if (!range) return;
 
     const cutoffTime = Date.now() - range.ms;
-    const filtered = profitHistory.filter(
-      (entry) => entry.timestamp >= cutoffTime
-    );
-    
-    // Debug log (remove after testing)
+    const filtered = profitHistory.filter((entry) => entry.timestamp >= cutoffTime);
     console.log(`📊 TimeRange: ${timeRange}, Cutoff: ${new Date(cutoffTime).toLocaleTimeString()}, Points: ${filtered.length}`);
-    
     setFilteredProfitHistory(filtered);
   }, [profitHistory, timeRange]);
+
+  useEffect(() => {
+    filterProfitHistory();
+  }, [filterProfitHistory]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -298,7 +301,7 @@ export default function Home() {
               </div>
             </div>
             <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 h-96">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" debounce={0}>
                 <LineChart data={filteredProfitHistory}>
                   <CartesianGrid stroke="#4b5563" strokeDasharray="3 3" />
                   <XAxis
@@ -324,6 +327,7 @@ export default function Home() {
                     stroke="#a3e635"
                     strokeWidth={2}
                     dot={false}
+                    animationDuration={0} // ✅ Disable animation for instant update
                   />
                 </LineChart>
               </ResponsiveContainer>
