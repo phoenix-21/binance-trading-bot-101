@@ -1,6 +1,6 @@
 // app/page.jsx
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -11,17 +11,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import AIPage from "./ai-page";
-
-// ✅ FIXED: Move timeRanges OUTSIDE component (stable reference)
-const timeRanges = [
-  { label: "6 Hours", value: "6h", ms: 6 * 60 * 60 * 1000 },
-  { label: "12 Hours", value: "12h", ms: 12 * 60 * 60 * 1000 },
-  { label: "24 Hours", value: "24h", ms: 24 * 60 * 60 * 1000 },
-  { label: "3 Days", value: "3d", ms: 3 * 24 * 60 * 60 * 1000 },
-  { label: "7 Days", value: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
-  { label: "14 Days", value: "14d", ms: 14 * 24 * 60 * 60 * 1000 },
-  { label: "1 Month", value: "1m", ms: 30 * 24 * 60 * 60 * 1000 },
-];
 
 function minus5AndFormat(dateStr) {
   const d = new Date(dateStr);
@@ -50,9 +39,7 @@ export default function Home() {
   const [profits24hCount, setProfits24hCount] = useState(0);
   const [losses24hCount, setLosses24hCount] = useState(0);
   const [profitHistory, setProfitHistory] = useState([]);
-  const [filteredProfitHistory, setFilteredProfitHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("main");
-  const [timeRange, setTimeRange] = useState("24h");
 
   useEffect(() => {
     async function fetchData() {
@@ -70,28 +57,24 @@ export default function Home() {
         setLosses24hCount(data.losses24hCount);
 
         const nowMinus5 = new Date(Date.now() - 5 * 60 * 60 * 1000);
-        const newEntry = {
-          time: nowMinus5
-            .toLocaleString("en-PK", {
-              timeZone: "Asia/Karachi",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })
-            .replace("AM", "am")
-            .replace("PM", "pm"),
-          balance:
-            typeof data.balance === "number" ? data.balance.toFixed(2) : null,
-          timestamp: nowMinus5.getTime(),
-        };
-
-        // Only update if balance changes or history is empty
-        setProfitHistory((prev) => {
-          if (prev.length === 0 || prev[prev.length - 1].balance !== newEntry.balance) {
-            return [...prev.slice(-99), newEntry]; // Keep last 100 entries
-          }
-          return prev;
-        });
+        setProfitHistory((prev) => [
+          ...prev.slice(-100),
+          {
+            time: nowMinus5
+              .toLocaleString("en-PK", {
+                timeZone: "Asia/Karachi",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })
+              .replace("AM", "am")
+              .replace("PM", "pm"),
+            balance:
+              typeof data.balance === "number"
+                ? data.balance.toFixed(2)
+                : null,
+          },
+        ]);
       } catch (err) {
         console.error("Failed to fetch trades:", err);
       }
@@ -99,25 +82,10 @@ export default function Home() {
 
     if (activeTab === "main") {
       fetchData();
-      const interval = setInterval(fetchData, 15000); // Reduced frequency to 15s
+      const interval = setInterval(fetchData, 5000);
       return () => clearInterval(interval);
     }
   }, [activeTab]);
-
-  // ✅ Instant filter update without delay
-  const filterProfitHistory = useCallback(() => {
-    const range = timeRanges.find((r) => r.value === timeRange);
-    if (!range) return;
-
-    const cutoffTime = Date.now() - range.ms;
-    const filtered = profitHistory.filter((entry) => entry.timestamp >= cutoffTime);
-    console.log(`📊 TimeRange: ${timeRange}, Cutoff: ${new Date(cutoffTime).toLocaleTimeString()}, Points: ${filtered.length}`);
-    setFilteredProfitHistory(filtered);
-  }, [profitHistory, timeRange]);
-
-  useEffect(() => {
-    filterProfitHistory();
-  }, [filterProfitHistory]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -282,27 +250,10 @@ export default function Home() {
 
           {/* Profit Chart */}
           <div className="mt-8 animate-fade-in">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-semibold text-gray-50">Profit Over Time</h3>
-              <div className="flex space-x-2 flex-wrap gap-1">
-                {timeRanges.map((range) => (
-                  <button
-                    key={range.value}
-                    className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
-                      timeRange === range.value
-                        ? "bg-purple-600 text-white shadow-md"
-                        : "text-gray-300 hover:bg-purple-700 hover:text-white"
-                    }`}
-                    onClick={() => setTimeRange(range.value)}
-                  >
-                    {range.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <h3 className="text-lg font-semibold text-gray-50 mb-3">Profit Over Time</h3>
             <div className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 h-96">
-              <ResponsiveContainer width="100%" height="100%" debounce={0}>
-                <LineChart data={filteredProfitHistory}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={profitHistory}>
                   <CartesianGrid stroke="#4b5563" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="time"
@@ -327,15 +278,9 @@ export default function Home() {
                     stroke="#a3e635"
                     strokeWidth={2}
                     dot={false}
-                    animationDuration={0} // ✅ Disable animation for instant update
                   />
                 </LineChart>
               </ResponsiveContainer>
-              {filteredProfitHistory.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-gray-400 text-sm">No data for selected period</p>
-                </div>
-              )}
             </div>
           </div>
         </main>
