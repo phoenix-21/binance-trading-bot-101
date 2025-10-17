@@ -12,6 +12,17 @@ import {
 } from "recharts";
 import AIPage from "./ai-page";
 
+// ✅ FIXED: Move timeRanges OUTSIDE component (stable reference)
+const timeRanges = [
+  { label: "6 Hours", value: "6h", ms: 6 * 60 * 60 * 1000 },
+  { label: "12 Hours", value: "12h", ms: 12 * 60 * 60 * 1000 },
+  { label: "24 Hours", value: "24h", ms: 24 * 60 * 60 * 1000 },
+  { label: "3 Days", value: "3d", ms: 3 * 24 * 60 * 60 * 1000 },
+  { label: "7 Days", value: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
+  { label: "14 Days", value: "14d", ms: 14 * 24 * 60 * 60 * 1000 },
+  { label: "1 Month", value: "1m", ms: 30 * 24 * 60 * 60 * 1000 },
+];
+
 function minus5AndFormat(dateStr) {
   const d = new Date(dateStr);
   const minus5 = new Date(d.getTime() - 5 * 60 * 60 * 1000);
@@ -42,16 +53,6 @@ export default function Home() {
   const [filteredProfitHistory, setFilteredProfitHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("main");
   const [timeRange, setTimeRange] = useState("24h");
-
-  const timeRanges = [
-    { label: "6 Hours", value: "6h", ms: 6 * 60 * 60 * 1000 },
-    { label: "12 Hours", value: "12h", ms: 12 * 60 * 60 * 1000 },
-    { label: "24 Hours", value: "24h", ms: 24 * 60 * 60 * 1000 },
-    { label: "3 Days", value: "3d", ms: 3 * 24 * 60 * 60 * 1000 },
-    { label: "7 Days", value: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
-    { label: "14 Days", value: "14d", ms: 14 * 24 * 60 * 60 * 1000 },
-    { label: "1 Month", value: "1m", ms: 30 * 24 * 60 * 60 * 1000 },
-  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -99,12 +100,19 @@ export default function Home() {
     }
   }, [activeTab]);
 
+  // ✅ FIXED: Simplified cutoff logic + stable timeRanges reference
   useEffect(() => {
-    const selectedRange = timeRanges.find((range) => range.value === timeRange);
-    const cutoffTime = Date.now() - 5 * 60 * 60 * 1000 - selectedRange.ms;
+    const range = timeRanges.find((r) => r.value === timeRange);
+    if (!range) return;
+
+    const cutoffTime = Date.now() - range.ms;
     const filtered = profitHistory.filter(
       (entry) => entry.timestamp >= cutoffTime
     );
+    
+    // Debug log (remove after testing)
+    console.log(`📊 TimeRange: ${timeRange}, Cutoff: ${new Date(cutoffTime).toLocaleTimeString()}, Points: ${filtered.length}`);
+    
     setFilteredProfitHistory(filtered);
   }, [profitHistory, timeRange]);
 
@@ -273,13 +281,13 @@ export default function Home() {
           <div className="mt-8 animate-fade-in">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-lg font-semibold text-gray-50">Profit Over Time</h3>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 flex-wrap gap-1">
                 {timeRanges.map((range) => (
                   <button
                     key={range.value}
                     className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
                       timeRange === range.value
-                        ? "bg-purple-600 text-white"
+                        ? "bg-purple-600 text-white shadow-md"
                         : "text-gray-300 hover:bg-purple-700 hover:text-white"
                     }`}
                     onClick={() => setTimeRange(range.value)}
@@ -319,6 +327,11 @@ export default function Home() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              {filteredProfitHistory.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="text-gray-400 text-sm">No data for selected period</p>
+                </div>
+              )}
             </div>
           </div>
         </main>
